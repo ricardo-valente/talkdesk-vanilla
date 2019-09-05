@@ -1,0 +1,203 @@
+{{> utilities/globals/head-index }}
+
+<body>
+	<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-12">
+			<table >
+				<tr>
+					<td class="header no-change" height="80" width="100%" colspan="3" bgcolor="#eaf9fd">
+						<div class="col-xs-10 col-md-8">
+							<header style="width: calc(50% - 15px);">
+
+							</header>
+							<div class="edit" style="float: left;">
+								<input name="name" placeholder="Project Name">
+								<input name="desc" placeholder="Description">
+							</div>
+							<button class="btn btn-primary btn-edit btn-sm" onclick="toggleEdit(event)">
+								<span class="glyphicon glyphicon-pencil"></span>
+							</button>
+						</div>
+						<picture>
+							<a href="/">
+								<img class="logo" src="/images/logos/logo_by.png" width="80">
+							</a>
+						</picture>
+					</td>
+				</tr>
+				<tr>
+					<td class="no-change">
+						<div class="clearfix">
+							<h3>Datas:</h3>
+							<button class="btn btn-primary btn-edit btn-sm" onclick="toggleEdit(event)">
+								<span class="glyphicon glyphicon-pencil"></span>
+							</button>
+						</div>
+						<ul class="dates">
+							{{!-- <li>Data de Inicio - 2017-10-20</li>
+								<li>Data de Fim - 2017-10-20</li>
+								<li>Data Go Live - 2017-10-20</li> --}}
+						</ul>
+						<div class="ghost">
+							<input placeholder="Adicionar datas" type="date">
+							<button class="btn btn-success" onclick="addItem(event)">&plus;</button>
+						</div>
+					</td>
+					<td class="no-change">
+						<div class="clearfix">
+							<h3>Equipa:</h3>
+							<button class="btn btn-primary btn-edit btn-sm" onclick="toggleEdit(event)">
+								<span class="glyphicon glyphicon-pencil"></span>
+							</button>
+						</div>
+						<ul class="team">
+							{{!-- <li>GP - [Nome]</li>
+								<li>DE - [Nome]</li>
+								<li>FE - [Nome]</li>
+								<li>SS - [Nome]</li> --}}
+						</ul>
+						<div class="ghost">
+							<input placeholder="Adicionar equipa">
+							<button class="btn btn-success" onclick="addItem(event)">&plus;</button>
+						</div>
+					</td>
+					<td class="no-change">
+						<div class="clearfix">
+							<h3>Ambientes:</h3>
+							<button class="btn btn-primary btn-edit btn-sm" onclick="toggleEdit(event)">
+								<span class="glyphicon glyphicon-pencil"></span>
+							</button>
+						</div>
+						<ul class="server">
+							{{!-- <li>GIT: <a href="[LINK]">[LINK]</a></li>
+								<li>DEV: <a href="[LINK]">[LINK]</a></li>
+								<li>STAG: <a href="[LINK]">[LINK]</a></li>
+								<li>PROD: <a href="[LINK]">[LINK]</a></li> --}}
+						</ul>
+						<div class="ghost">
+							<input placeholder="Servidor"><input placeholder="link">
+							<button class="btn btn-success" onclick="addItem(event)">&plus;</button>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td class="no-change" width="100%" colspan="3">
+						<div class="clearfix">
+							<h3>Descrição:</h3>
+							<button class="btn btn-primary btn-edit btn-sm" onclick="toggleEdit(event)">
+								<span class="glyphicon glyphicon-pencil"></span>
+							</button>
+						</div>
+						<ul class="description"></ul>
+
+						<div class="ghost">
+							<textarea rows="4" placeholder="Quando fui comprar bananas, esqueci-me de trazer Natas! :O" style="resize: vertical; min-height: 80px;"></textarea>
+							<button class="btn btn-success" onclick="addItem(event)">&plus;</button>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<table class="no-change">
+				<tr>
+					<td width="100%" colspan="1" bgcolor="#eaf9fd">
+						<h3>Templates</h3>
+						<button class="btn btn-primary btn-edit btn-sm" onclick="toggleEdit(event, 'table')">
+							<span class="glyphicon glyphicon-pencil"></span>
+						</button>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<ul class="templates">
+							{{!--<li>
+								<a href="/pages/t1-homepage.html">
+									<span class="s1">T 1</span>
+									<span class="s2">Home page</span>
+									<span class="s3">/pages/t1-homepage.html</span>
+								</a>
+							</li>--}}
+						</ul>
+						<div class="ghost">
+							<input placeholder="T00"><input placeholder="Dummy">{{!--<input placeholder="t00-dummy.html">--}}
+							<button class="btn btn-success" onclick="addItem(event)">&plus;</button>
+						</div>
+						{{!-- <ul class="templates">
+										<li>
+												<a href="/pages/t1-homepage.html">
+														<span class="s1">T 1</span>
+														<span class="s2">Home page</span>
+														<span class="s3">/pages/t1-homepage.html</span>
+												</a>
+										</li>
+										<li>
+												<a href="http://localhost:3000/pages/t1-homepage.html">
+														<span class="s1">T 2</span>
+														<span class="s2">Home page</span>
+														<span class="s3">http://localhost:3000/pages/t1-homepage.html</span>
+												</a>
+										</li>
+										<li>
+												<a href="http://localhost:3000/pages/t1-homepage.html">
+														<span class="s1">T 3</span>
+														<span class="s2">Home page</span>
+														<span class="s3">http://localhost:3000/pages/t1-homepage.html</span>
+												</a>
+										</li>
+								</ul> --}}
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<table class="no-change">
+				<tr>
+					<td width="100%" colspan="1" bgcolor="#eaf9fd">
+						<h3>GUI Items</h3>
+						<button class="btn btn-primary btn-edit btn-sm" onclick="toggleEdit(event, 'table')">
+							<span class="glyphicon glyphicon-pencil"></span>
+						</button>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<ul class="gui_item">
+							{{!--<li>
+								<a href="/pages/t1-homepage.html">
+									<span class="s1">T 1</span>
+									<span class="s2">Home page</span>
+									<span class="s3">/pages/t1-homepage.html</span>
+								</a>
+							</li>--}}
+						</ul>
+						<div class="ghost">
+							<input placeholder="T00"><input placeholder="Dummy">{{!--<input placeholder="t00-dummy.html">--}}
+							<button class="btn btn-success" onclick="addItem(event)">&plus;</button>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div class="row" style="margin-top: 25px;">
+		<div class="col-xs-6">
+			{{!--<button >EDIT</button>--}}
+			{{!--<br>--}}
+		</div>
+		<div class="col-xs-6" style="text-align: right">
+			<button class="btn btn-success" onclick="setData()">
+				<i class="glyphicon glyphicon-floppy-save"></i> Guardar
+			</button>
+			<br>
+			<a id="results" style="display: none;">CSV from local store</a>
+		</div>
+	</div>
+</div>
+
+{{> utilities/globals/foot-index }}

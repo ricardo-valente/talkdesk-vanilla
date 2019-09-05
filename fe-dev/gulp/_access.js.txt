@@ -1,0 +1,9 @@
+module.exports = {
+	ftp: {
+		host: '', // eg. 000.000.000.000
+		user: '', // eg. user
+		password: '', // eg. complexpassword
+		dest: '', // eg. /wwwroot/something.domain.com/httpdocs/html
+		destlive: '' // eg. /wwwroot/something.domain.com/httpdocs
+	}
+};

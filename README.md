@@ -1,12 +1,9 @@
-# BY Starter V2
+# Starter V2
 2017/09 - Front-end boilerplate for faster and easier web development. Without some noisy plugins. \
 JavaScript + CSS3 + HTML 5.
 
 ## Installation
 ```
-git clone http://gitlab.bycom.pt/gitlab/bystarter-v2.git
-rm -rf !$/.git
-
 npm install && bower install
 
 gulp
@@ -17,7 +14,7 @@ gulp serve
 ## Project
 _If blank, please fill in the necessary info._
 * Name:
-* Description: 
+* Description:
 * Start Date:
 * Finish Date:
 - Dev URL:
@@ -29,15 +26,15 @@ ENV Branching is based on the environments the application deploys to:
  - **production**: the live site
  - **stage**: for staging features to the client
  - **development**: for staging features internally
- 
-Each environment has a dedicated ENV branch: **master**, **stage** and **dev**. At any given time, those branches will resemble exactly what’s on their corresponding environment. 
 
-All commits are done on a feature branch and merged into the environment you wish to deploy. With continuous integration, you can automatically push the new changes to **development** environment. To do this just type on your console: 
+Each environment has a dedicated ENV branch: **master**, **stage** and **dev**. At any given time, those branches will resemble exactly what’s on their corresponding environment.
+
+All commits are done on a feature branch and merged into the environment you wish to deploy. With continuous integration, you can automatically push the new changes to **development** environment. To do this just type on your console:
 ```
 gulp deploy
 > this will upload your build to html folder
 > http://[client].dev.byclients.com/html/index.html
- 
+
 gulp deploy:live
 > this will upload all of your assets to the matching folders on dev server).
 > If everything is OK you still need to manually update stage and production environment.
@@ -50,7 +47,7 @@ To maintain the integrity of the branches and ensure we can deploy features inde
 2. **NEVER** merge one ENV branch into another;
 3. **ALLWAYS** create a feature or fix branch to your development;
 4. **Feature** branches should be autonomously deployable.
- 
+
 A Simple Example
 
 ![Git flow example](http://clientes.bycom.pt/gitflow/branching.jpg)
@@ -62,28 +59,28 @@ A Simple Example
 gulp config
 > Project configuration start (name, description, assets prefix, dev url)
 
-gulp serve 
+gulp serve
 > Localhost start - please update index.html with every new template file
 
-gulp deploy 
-> This task will upload all you DIST files to DEV SERVER, to a HTML folder for templating testing. 
+gulp deploy
+> This task will upload all you DIST files to DEV SERVER, to a HTML folder for templating testing.
 > URL: http://[client].dev.byclients.com/html/index.html
 
-gulp deploy:live 
-> This task will upload all you DIST files to DEV SERVER. It will upload to each asset folder on the server, this requires that the server is ready for this files: assets-head.cshtml, assets-foot.cshtml. 
+gulp deploy:live
+> This task will upload all you DIST files to DEV SERVER. It will upload to each asset folder on the server, this requires that the server is ready for this files: assets-head.cshtml, assets-foot.cshtml.
 > URL**: http://[client].dev.byclients.com
-> This will overwrite the old assets files. 
+> This will overwrite the old assets files.
 ```
 
 
 ##### Other tasks
 ```
-gulp dist 
+gulp dist
 gulp dist:deploy
-gulp sass 
+gulp sass
 gulp sass:deploy
-gulp scripts 
-gulp scripts:deploy 
+gulp scripts
+gulp scripts:deploy
 ```
 
 ## Access URLs
@@ -107,7 +104,7 @@ gulp scripts:deploy
 
 ###### Workflow + Tools
 * Bower 1.7.2
-* Gulp 3.9.1 
+* Gulp 3.9.1
 * Browser Sync
 
 ###### Browser Support
@@ -119,7 +116,7 @@ gulp scripts:deploy
 
 ###### Authors and Contributors
 * Mário Silva (@mario.silva)
-* Rui Rosa (@rui.rosa) 
+* Rui Rosa (@rui.rosa)
 
 ###### Versioning
 * This project uses MAJOR.MINOR.PATCH [Semantic Versioning](http://semver.org/).

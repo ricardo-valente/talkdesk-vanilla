@@ -1,0 +1,16 @@
+.text {
+  // Colors
+  &-orange {
+    color: $color1;
+  }
+  &-bluegray {
+    color: $color2;
+  }
+  // END Colors
+
+  // text style
+  &-capitalize {
+    text-transform: capitalize;
+  }
+  // END text style
+}

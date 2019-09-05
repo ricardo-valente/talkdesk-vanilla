@@ -1,0 +1,22 @@
+{
+  "name": "Starter",
+  "description": "Starter",
+  "main": "",
+  "authors": [
+    "BY"
+  ],
+  "license": "MIT",
+  "moduleType": [],
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "gridlex": "^2.7.1"
+  }
+}

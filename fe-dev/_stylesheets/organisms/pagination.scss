@@ -1,0 +1,12 @@
+.pagination {
+  &--wrapper {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+  }
+
+  &--item {
+    @include font('body', 'normal');
+    @include fontSize(.8125rem, 1rem);
+  }
+}

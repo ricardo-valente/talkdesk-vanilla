@@ -1,0 +1,17 @@
+{
+  "index": {
+    "project": {
+      "name": "talkdesk",
+      "desc": "talkdesk challenge"
+    },
+    "team": [],
+    "dates": [],
+    "server": [],
+    "description": [],
+    "templates": [{
+      "numb": "t01",
+      "name": "homepage"
+    }],
+    "gui_item": []
+  }
+}

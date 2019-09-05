@@ -1,0 +1,44 @@
+.card {
+  color: $color0;
+  padding: 1.5rem;
+  background-color: #fff;
+  opacity: 1;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 0 1.5625rem 0 transparent;
+
+  &:not(:last-of-type) {
+    margin-bottom: 1.5rem;
+  }
+
+  &:hover {
+    box-shadow: 0 0 1.5625rem 0 rgba(0, 0, 0, 0.2);
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  &__label {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+
+    &:not(:only-of-type):not(:last-of-type) {
+      margin-right: 0.5rem;
+    }
+  }
+
+  &__title {
+    color: $color0;
+    font-size: 1.5rem;
+    line-height: strip-unit(32 / (1.5 * $body-font-size));
+  }
+
+  &__url {
+    font-size: 0.875rem;
+    line-height: strip-unit(22 / (0.875 * $body-font-size));
+    color: $color2;
+    text-decoration: none;
+    margin-bottom: 0.3125rem;
+    word-break: break-word;
+  }
+}

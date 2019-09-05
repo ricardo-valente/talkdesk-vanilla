@@ -1,0 +1,31 @@
+// Core CSS
+@import "utilities/reset",
+        "../_libs/vendor/gridlex/src/gridlex";
+
+// Utilities
+@import "utilities/colors",
+        "utilities/fonts";
+
+// Custom
+body {
+  color: #172241;
+  background-color: #f5f5f5;
+
+  @include font('body', 'normal');
+  font-size: 16px;
+  @include fontSize(13px, 16px);
+}
+
+.container {
+  max-width: 78rem;
+  margin: 0 auto;
+}
+
+ // Atoms
+@import "atoms/styles.scss";
+
+// Molecules
+
+// Organisms
+@import "organisms/card",
+        "organisms/pagination";

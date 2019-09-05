@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins:300,400,500&display=swap');
+
+/*
+ -- FONTS --
+ */
+$body-font-size: 16px;
+
+$fonts: (
+  heading: 'Alegreya Sans',
+  body: 'Poppins'
+);
+
+@mixin font($name, $weight, $style: 'normal') {
+  $weights: (
+    'thin'       : 100,
+    'extra-thin' : 200,
+    'light'      : 300,
+    'regular'    : 400,
+    'medium'     : 500,
+    'semi-bold'  : 600,
+    'bold'       : 700,
+    'extra-bold' : 800,
+    'black'      : 900
+  );
+
+  font-smooth: always;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  font-family: #{map-get($fonts, $name)}, sans-serif;
+  font-weight: #{map-get($weights, $weight)};
+  font-style: unquote($style);
+}
+
+/// Remove the unit of a length
+/// @param {Number} $number - Number to remove unit from
+/// @return {Number} - Unitless number
+@function strip-unit($number) {
+  @if type-of($number) == 'number' and not unitless($number) {
+    @return $number / ($number * 0 + 1);
+  }
+
+  @return $number;
+}
+
+// Breakpoints
+$length: strip-unit($body-font-size);
+$lg: map-get($gl-mq-list, 'lg') * $length;
+$md: map-get($gl-mq-list, 'md') * $length;
+$sm: map-get($gl-mq-list, 'sm') * $length;
+$xs: map-get($gl-mq-list, 'xs') * $length;
+
+//- Mixin: Fluid Type
+///
+/// Magic calc + vh to allow text to be fluid between minimum
+/// and maximum breakpoints.
+///
+/// @group typography
+/// @param {variable} $min-font-size [12px] - Minimum font size
+/// @param {variable} $max-font-size [24px] - Maximum font size
+/// @param {variable} $lower-range [420px] - Stop scaling font smaller at this screen resolution
+/// @param {variable} $upper-range [900px] - Stop scaling font larger at this screen resolution
+/// @example
+///   h1 {
+///     @include fluid-type(20px, 48px);
+///   }
+/// @site https://madebymike.com.au/writing/precise-control-responsive-typography/
+
+@mixin fontSize($min-font-size: 0.75rem, $max-font-size: 1.3125rem, $lower-range: $xs, $upper-range: $md) {
+  font-size: calc(
+    #{$min-font-size} + #{(($max-font-size / ($max-font-size * 0 + 1)) - ($min-font-size / ($min-font-size * 0 + 1)))} *
+      (
+        (100vw - #{$lower-range}) / #{(
+            ($upper-range / ($upper-range * 0 + 1)) - ($lower-range / ($lower-range * 0 + 1))
+          )}
+      )
+  );
+
+  @media screen and (max-width: $lower-range) {
+    font-size: $min-font-size;
+  }
+  @media screen and (min-width: $upper-range) {
+    font-size: $max-font-size;
+  }
+}

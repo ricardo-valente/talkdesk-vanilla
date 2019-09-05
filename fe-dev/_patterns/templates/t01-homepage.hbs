@@ -1,0 +1,42 @@
+{{> utilities/globals/head }}
+
+<body class="pagehomepage" data-lang="pt" data-id="">
+  <div id="fb-root"></div>
+
+  <section>
+    <div class="grid container">
+      <div class="col-12">
+        <form>
+          <input type="text" id="search-input" placeholder="Search...">
+        </form>
+
+      </div>
+
+      <div class="col-3_sm-12">
+        filters
+        <ul id="search-filters" class="">
+          <li><a href="javascript:;" data-filter="*">All</a></li>
+        </ul>
+
+      </div>
+
+      <div class="col-9_sm-12">
+        search rsults
+
+        <ul id="pagination--wrapper">
+          <li class="pagination--item" data-page="1">1</li>
+          <li class="pagination--item" data-page="2">2</li>
+          <li class="pagination--item" data-page="3">3</li>
+          <li class="pagination--item" data-page="4">4</li>
+          <li class="pagination--item" data-page="5">5</li>
+        </ul>
+
+        <div id="search-results--cards" class="grid">
+          {{!-- {{> organisms/card }} --}}
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  {{> utilities/globals/foot }}
