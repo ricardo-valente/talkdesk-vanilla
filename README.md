@@ -96,11 +96,7 @@ gulp scripts:deploy
 
 ## Extra Info
 ###### Components
-* Normalize 2.1.0
-* BY Grid 1.1.0 (based on v3.1.1 of Twitter's Bootstrap)
-* Modernizr 2.6.2
-* jQuery 3.1.1
-* js-cookie 2.1.4
+* Gridlex 2.7.1
 
 ###### Workflow + Tools
 * Bower 1.7.2
@@ -108,11 +104,12 @@ gulp scripts:deploy
 * Browser Sync
 
 ###### Browser Support
-* Mozilla Firefox 5+
-* Google Chrome 14+
-* Safari 5+
-* Opera 11+
-* Internet Explorer 10+
+Current version of browsers +4
+* Mozilla Firefox
+* Google Chrome
+* Safari
+* Opera
+* Edge
 
 ###### Authors and Contributors
 * Mário Silva (@mario.silva)
