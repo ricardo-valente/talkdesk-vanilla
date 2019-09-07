@@ -64,7 +64,7 @@ let app = {
 
 
     // COMPONENTS ----------------------------------------
-    if ($doc.querySelector('#search-input')) {
+    if ($doc.querySelector('#search__form')) {
       app.search.init();
     }
 
@@ -88,84 +88,115 @@ let app = {
 })();
 
 app.helpers = {
-	// COMMON --------------------------------------------
-	// Configs + Constants
-	TIMERS: '',
-	DATA: '',
-	AJAX: '',
+  // COMMON --------------------------------------------
+  // Configs + Constants
+  TIMERS: '',
+  DATA: '',
+  AJAX: '',
 
 
-	// MAIN FUNCTIONS ------------------------------------
-	init: () => {
-		let _this = app.helpers;
+  // MAIN FUNCTIONS ------------------------------------
+  init: () => {
+    let _this = app.helpers;
 
-		_this.setupEvents();
-		_this.setupLayout();
-	},
+    _this.setupEvents();
+    _this.setupLayout();
+  },
 
-	setupEvents: () => {},
-	setupLayout: () => {},
+  setupEvents: () => { },
+  setupLayout: () => { },
 
+  // OTHER FUNCTIONS -----------------------------------
+  browserDetect: () => {
+    let ua = window.navigator.userAgent;
 
+    let msie = ua.indexOf('MSIE ');
+    if (msie > 0) {
+      // IE 10 or older => return version number
+      return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+    }
 
-	// OTHER FUNCTIONS -----------------------------------
-	browserDetect: () => {
-		let ua = window.navigator.userAgent;
+    let trident = ua.indexOf('Trident/');
+    if (trident > 0) {
+      // IE 11 => return version number
+      let rv = ua.indexOf('rv:');
+      return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+    }
 
-		let msie = ua.indexOf('MSIE ');
-		if (msie > 0) {
-			// IE 10 or older => return version number
-			return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
-		}
+    let edge = ua.indexOf('Edge/');
+    if (edge > 0) {
+      // Edge (IE 12+) => return version number
+      return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
+    }
 
-		let trident = ua.indexOf('Trident/');
-		if (trident > 0) {
-			// IE 11 => return version number
-			let rv = ua.indexOf('rv:');
-			return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
-		}
+    // other browser
+    return false;
+  },
 
-		let edge = ua.indexOf('Edge/');
-		if (edge > 0) {
-			// Edge (IE 12+) => return version number
-			return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
-		}
+  osDetect: () => {
+    let res = false;
+    if (navigator.appVersion.indexOf("Win") !== -1) { res = "Windows"; }
+    else if (navigator.appVersion.indexOf("Mac") !== -1) { res = "MacOS"; }
+    else if (navigator.appVersion.indexOf("X11") !== -1) { res = "UNIX"; }
+    else if (navigator.appVersion.indexOf("Linux") !== -1) { res = "Linux"; }
 
-		// other browser
-		return false;
-	},
+    return res;
+  },
 
-	osDetect: () => {
-		let res = false;
-		if (navigator.appVersion.indexOf("Win")!==-1){res="Windows";}
-		else if (navigator.appVersion.indexOf("Mac")!==-1){res="MacOS";}
-		else if (navigator.appVersion.indexOf("X11")!==-1){res="UNIX";}
-		else if (navigator.appVersion.indexOf("Linux")!==-1){res="Linux";}
+  getUrlParam: (name, url) => {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    let regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+      results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+  },
 
-		return res;
-	},
+  getRandom: (min, max, type) => {
+    if (type === 'int') {
+      min = Math.ceil(min);
+      max = Math.floor(max);
 
-	getUrlParam: (name, url) => {
-		if (!url) url = window.location.href;
-		name = name.replace(/[\[\]]/g, "\\$&");
-		let regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-			results = regex.exec(url);
-		if (!results) return null;
-		if (!results[2]) return '';
-		return decodeURIComponent(results[2].replace(/\+/g, " "));
-	},
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    else {
+      return Math.random() * (max - min) + min;
+    }
+  },
 
-	getRandom: (min, max, type) => {
-		if(type === 'int'){
-			min = Math.ceil(min);
-			max = Math.floor(max);
+  /**
+   * Get the closest matching element up the DOM tree.
+   * @private
+   * @param  {Element} elem     Starting element
+   * @param  {String}  selector Selector to match against
+   * @return {Boolean|Element}  Returns null if not match found
+   */
+  getClosest: (elem, selector) => {
+    // Element.matches() polyfill
+    if (!Element.prototype.matches) {
+      Element.prototype.matches =
+        Element.prototype.matchesSelector ||
+        Element.prototype.mozMatchesSelector ||
+        Element.prototype.msMatchesSelector ||
+        Element.prototype.oMatchesSelector ||
+        Element.prototype.webkitMatchesSelector ||
+        function (s) {
+          var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+            i = matches.length;
+          while (--i >= 0 && matches.item(i) !== this) { }
+          return i > -1;
+        };
+    }
 
-			return Math.floor(Math.random() * (max - min + 1)) + min;
-		}
-		else{
-			return Math.random() * (max - min) + min;
-		}
-	}
+    // Get closest match
+    for (; elem && elem !== document; elem = elem.parentNode) {
+      if (elem.matches(selector)) return elem;
+    }
+
+    return null;
+  },
+
 };
 
 app.search = {
@@ -173,7 +204,8 @@ app.search = {
   // Configs + Constants
   TIMERS: '',
   DATA: '',
-  API_SEARCH: 'https://talkdesk-com.meza.talkdeskqa.com/wp-json/external/globalsearch?search=',
+  API_SEARCH: 'https://talkdesk-com.meza.talkdeskqa.com/wp-json/external/globalsearch',
+  PAGE_SKIP: 0,
   PAGE_SIZE: 12,
 
 
@@ -183,9 +215,10 @@ app.search = {
     console.log('=====\nApp Search Init\n');
     let _this = app.search;
 
-    _this.firstPaint();
-    _this.setupLayout();
-    _this.setupEvents();
+    _this.firstPaint((callback) => {
+      _this.setupEvents();
+      _this.setupLayout();
+    });
 
   },
 
@@ -193,22 +226,8 @@ app.search = {
     console.log('=====\nApp Search === Events\n');
     let _this = app.search;
 
-    if (!!_this.DATA && !!_this.DATA.posts.length) {
-      let paginationTotal = _this.DATA.posts.length;
-      let totalPages = (paginationTotal - _this.PAGE_SIZE) <= 0 ? 0 : ((paginationTotal - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed();
-
-    }
-
-    document.addEventListener('click', function (event) {
-      // If the clicked element doesn't have the right selector, bail
-      if (!event.target.matches('.pagination--item')) return;
-
-      // Don't follow the link
-      event.preventDefault();
-
-      // Log the clicked element in the console
-      console.log(event.target.getAttribute('data-page'));
-    }, false);
+    _this.filtersHandler();
+    _this.paginationHandler();
   },
 
   setupLayout: () => {
@@ -228,7 +247,7 @@ app.search = {
 
     // Setup cards
     if (!!_this.DATA && _this.DATA.posts.length) {
-      _this.DATA.posts.map((content, idx) => {
+      _this.DATA.posts.slice(_this.PAGE_SKIP, _this.PAGE_SIZE).map((content, idx) => {
         let markupHtml = cardsTemplate(content, idx);
         let container = document.createElement('div');
 
@@ -242,7 +261,7 @@ app.search = {
     // Setup filters
     const filtersTemplate = (content, idx) => {
       return `
-        <a href="javascrip:;" data-filters="${content.slug}">${content.label}</a>
+        <a href="#" data-filter="${content.slug}">${content.label}</a>
       `
     };
 
@@ -251,6 +270,7 @@ app.search = {
         let markupHtml = filtersTemplate(content, idx);
         let container = document.createElement('li');
 
+        container.className = 'search__item';
         container.innerHTML = markupHtml;
 
         document.getElementById('search-filters').append(container);
@@ -261,11 +281,12 @@ app.search = {
 
 
   // OTHER FUNCTIONS -----------------------------------
-  firstPaint: () => {
+  firstPaint: (_callback) => {
     console.log('=====\nApp Search === first paint\n');
     let _this = app.search;
 
-    fetch(app.search.API_SEARCH)
+    let callback = _callback;
+    fetch(_this.API_SEARCH)
       .then((response) => {
         if (response.ok) {
           return response.json();
@@ -274,12 +295,70 @@ app.search = {
       })
       .then((data) => {
         _this.DATA = data;
-        _this.setupLayout();
+
+        if (typeof callback === 'function') {
+          callback();
+        }
         console.log(_this.DATA);
       })
       .catch((error) => {
         console.log(error)
         _this.DATA = data;
       });
+  },
+
+  searchHandler: () => {
+    let form = document.getElementById('search__form');
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      console.log('submit search');
+      var formData = serialize(form);
+
+      console.log('form data', formData);
+    });
+  },
+
+  filtersHandler: () => {
+    document.addEventListener('click', (event) => {
+      var _this = event.target;
+      var _parent = _this.parentNode;
+
+      if (_this.matches('.search__item')) {
+        event.preventDefault();
+        if (_this.querySelector('a').hasAttribute('data-filter'))
+          console.log(_this.querySelector('a').getAttribute('data-filter'));
+      } else if (_this.hasAttribute('data-filter')) {
+        event.preventDefault();
+        if (_parent.matches('.search__item'))
+          console.log(_this.getAttribute('data-filter'));
+      }
+
+    }, false);
+  },
+
+  paginationHandler: () => {
+    document.addEventListener('click', (event) => {
+
+      var _this = event.target;
+      var _parent = _this.parentNode;
+
+      if (!!_this.DATA && !!_this.DATA.posts.length) {
+        let totalPosts = _this.DATA.posts.length;
+        let totalPages = (totalPosts - _this.PAGE_SIZE) <= 0 ? 0 : ((totalPosts - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed();
+        console.log('total pages', totalPages);
+      }
+
+      // If the clicked element doesn't have the right selector, bail
+      if (_this.matches('.pagination--item')) {
+        // Don't follow the link
+        event.preventDefault();
+        // Log the clicked element in the console
+        console.log(event.target.getAttribute('data-page'));
+
+
+
+      }
+    }, false);
   }
 };

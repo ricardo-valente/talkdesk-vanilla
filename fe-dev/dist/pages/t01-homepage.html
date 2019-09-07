@@ -17,20 +17,22 @@
             <link rel="stylesheet" href="/css/app.min.css">
         </head>
 
-        <body class="pagehomepage" data-lang="pt" data-id="">
+        <body data-lang="pt" data-id="">
             <div id="fb-root"></div>
-            <section>
+            <section class="search__page">
                 <div class="grid container">
                     <div class="col-12">
-                        <form>
-                            <input type="text" id="search-input" placeholder="Search...">
+                        <form id="search__form">
+                            <input value="" type="text" name="search-keyword" placeholder="Search...">
                         </form>
                     </div>
-                    <div class="col-3_sm-12"> filters <ul id="search-filters" class="">
-                            <li><a href="javascript:;" data-filter="*">All</a></li>
+                    <div class="col-2_sm-12_md-3"> filters <ul id="search-filters" class="search__filters">
+                            <li class="search__item search--active"><a href="#" data-filter="*">All</a></li>
                         </ul>
                     </div>
-                    <div class="col-9_sm-12"> search rsults <ul id="pagination--wrapper">
+                    <div class="col-10_sm-12_md-9">
+                        <span>Showing <span id="total-results"></span> results for "<span id="keyword"></span>"</span>
+                        <ul id="pagination--wrapper">
                             <li class="pagination--item" data-page="1">1</li>
                             <li class="pagination--item" data-page="2">2</li>
                             <li class="pagination--item" data-page="3">3</li>

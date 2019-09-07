@@ -322,19 +322,19 @@
 						var numb = (!!items[i].numb) ? items[i].numb : 'N/A',
 							name = (!!items[i].name) ? items[i].name : 'N/A';
 
-						html += '<li>' +
-									'<a href="'+$('body').data('base-url')+'pages/' + numb+'-'+name + '.html">' +
-										'<span class="s1">' + numb + '</span>' +
-										'<span class="s2">' + name + '</span>' +
-										'<span class="s3">/pages/' + numb+'-'+name + '.html</span>' +
-									'</a>' +
-									'<span class="edit">' +
-										'<input value="' + numb + '">' +
-										'<input value="' + name + '">' +
-										'<input value="/pages/' + numb+'-'+name + '.html" disabled>' +
-										'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
-									'</span>' +
-								'</li>';
+						html += `<li>
+									<a href="/pages/${numb}-${name}.html">
+										<span class="s1">${numb}</span>
+										<span class="s2">${name}</span>
+										<span class="s3">/pages/${numb}-${name}.html</span>
+									</a>
+									<span class="edit">
+										<input value="${numb}">
+										<input value="${name}">
+										<input value="/pages/${numb}-${name}.html" disabled>
+										<button class="btn btn-danger" onclick="removeItem(event)">x</button>
+									</span>
+								</li>`;
 					}
 					$('.templates').append(html);
 				}

@@ -17,7 +17,8 @@ body {
 }
 
 .container {
-  max-width: 78rem;
+  flex: 0 0 85%;
+  max-width: 85%;
   margin: 0 auto;
 }
 
@@ -27,5 +28,7 @@ body {
 // Molecules
 
 // Organisms
-@import "organisms/card",
-        "organisms/pagination";
+@import "organisms/search-page",
+        "organisms/search-card",
+        "organisms/search-filters",
+        "organisms/search-pagination";

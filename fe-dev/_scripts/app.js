@@ -64,7 +64,7 @@ let app = {
 
 
     // COMPONENTS ----------------------------------------
-    if ($doc.querySelector('#search-input')) {
+    if ($doc.querySelector('#search__form')) {
       app.search.init();
     }
 

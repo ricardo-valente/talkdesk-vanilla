@@ -27,8 +27,8 @@ $fonts: (
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  font-family: #{map-get($fonts, $name)}, sans-serif;
-  font-weight: #{map-get($weights, $weight)};
+  font-family: map-get($fonts, $name), sans-serif;
+  font-weight: map-get($weights, $weight);
   font-style: unquote($style);
 }
 
@@ -45,10 +45,10 @@ $fonts: (
 
 // Breakpoints
 $length: strip-unit($body-font-size);
-$lg: map-get($gl-mq-list, 'lg') * $length;
-$md: map-get($gl-mq-list, 'md') * $length;
-$sm: map-get($gl-mq-list, 'sm') * $length;
-$xs: map-get($gl-mq-list, 'xs') * $length;
+$lg: (strip-unit(map-get($gl-mq-list, 'lg')) * $length) + 0px;
+$md: (strip-unit(map-get($gl-mq-list, 'md')) * $length) + 0px;
+$sm: (strip-unit(map-get($gl-mq-list, 'sm')) * $length) + 0px;
+$xs: (strip-unit(map-get($gl-mq-list, 'xs')) * $length) + 0px;
 
 //- Mixin: Fluid Type
 ///
