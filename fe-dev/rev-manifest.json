@@ -1,3 +1,6 @@
 {
-
+  "app.min.css": "app-1fffe8457c.min.css",
+  "app.min.js": "app-825254ea36.min.js",
+  "custom-plugins.min.js": "custom-plugins-aa3b5cbc6f.min.js",
+  "vendor.min.js": "vendor-8c7822dbed.min.js"
 }

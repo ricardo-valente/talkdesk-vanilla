@@ -1,12 +1,23 @@
 .pagination {
-  &--wrapper {
+  &__wrapper {
     display: flex;
     justify-content: center;
     align-content: center;
   }
 
-  &--item {
+  &__item {
     @include font('body', 'normal');
-    @include fontSize(.8125rem, 1rem);
+    @include fontSize(0.8125rem, 1rem);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.875rem;
+    height: 2.875rem;
+    margin: 0.125rem;
+    font-weight: 400;
+    border-radius: 50%;
+    opacity: 0.8;
+    transition: 150ms all ease-out;
   }
 }

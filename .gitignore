@@ -159,14 +159,16 @@ $RECYCLE.BIN/
 # =========================
 *.sublime-project
 *.sublime-workspace
-fe-dev/node_modules
-.idea
-fe-dev/_libs/vendor
+fe-dev/node_modules/
+bower_components/
+.idea/
+fe-dev/_libs/vendor/
+fe-dev/dist/css/temp/
 
 # =========================
 # Access config File
 # =========================
-fe-dev/gulp/_access.js
+_access.js
 
 
 # =========================
@@ -174,7 +176,6 @@ fe-dev/gulp/_access.js
 # =========================
 /.vs
 *.pdf
-*.user
 packages/
 App_Data/
 App_Plugins/

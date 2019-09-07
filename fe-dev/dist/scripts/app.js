@@ -197,6 +197,61 @@ app.helpers = {
     return null;
   },
 
+  paginate: (totalItems, currentPage = 1, pageSize = 10, maxPages = 10) => {
+    // calculate total pages
+    let totalPages = Math.ceil(totalItems / pageSize);
+
+    // ensure current page isn't out of range
+    if (currentPage < 1) {
+      currentPage = 1;
+    } else if (currentPage > totalPages) {
+      currentPage = totalPages;
+    }
+
+    let startPage, endPage;
+    if (totalPages <= maxPages) {
+      // total pages less than max so show all pages
+      startPage = 1;
+      endPage = totalPages;
+    } else {
+      // total pages more than max so calculate start and end pages
+      let maxPagesBeforeCurrentPage = Math.floor(maxPages / 2);
+      let maxPagesAfterCurrentPage = Math.ceil(maxPages / 2) - 1;
+      if (currentPage <= maxPagesBeforeCurrentPage) {
+        // current page near the start
+        startPage = 1;
+        endPage = maxPages;
+      } else if (currentPage + maxPagesAfterCurrentPage >= totalPages) {
+        // current page near the end
+        startPage = totalPages - maxPages + 1;
+        endPage = totalPages;
+      } else {
+        // current page somewhere in the middle
+        startPage = currentPage - maxPagesBeforeCurrentPage;
+        endPage = currentPage + maxPagesAfterCurrentPage;
+      }
+    }
+
+    // calculate start and end item indexes
+    let startIndex = (currentPage - 1) * pageSize;
+    let endIndex = Math.min(startIndex + pageSize - 1, totalItems - 1);
+
+    // create an array of pages to ng-repeat in the pager control
+    let pages = Array.from(Array((endPage + 1) - startPage).keys()).map(i => startPage + i);
+
+    // return object with all pager properties required by the view
+    return {
+      totalItems: totalItems,
+      currentPage: currentPage,
+      pageSize: pageSize,
+      totalPages: totalPages,
+      startPage: startPage,
+      endPage: endPage,
+      startIndex: startIndex,
+      endIndex: endIndex,
+      pages: pages
+    };
+  }
 };
 
 app.search = {
@@ -205,14 +260,15 @@ app.search = {
   TIMERS: '',
   DATA: '',
   API_SEARCH: 'https://talkdesk-com.meza.talkdeskqa.com/wp-json/external/globalsearch',
-  PAGE_SKIP: 0,
-  PAGE_SIZE: 12,
-
-
+  // Pagination
+  PAGE_SIZE: 10,
+  TOTAL_PAGES: 0,
+  CURRENTE_PAGE: 1,
+  // END Pagination
 
   // MAIN FUNCTIONS ------------------------------------
   init: () => {
-    console.log('=====\nApp Search Init\n');
+    console.log('=====\napp Search Init\n');
     let _this = app.search;
 
     _this.firstPaint((callback) => {
@@ -223,7 +279,7 @@ app.search = {
   },
 
   setupEvents: () => {
-    console.log('=====\nApp Search === Events\n');
+    console.log('=====\napp Search === Events\n');
     let _this = app.search;
 
     _this.filtersHandler();
@@ -231,7 +287,7 @@ app.search = {
   },
 
   setupLayout: () => {
-    console.log('=====\nApp Search === layout\n');
+    console.log('=====\napp Search === layout\n');
     let _this = app.search;
 
     // Setup cards
@@ -242,8 +298,8 @@ app.search = {
           <span class="card__label text-capitalize">${content.date}</span>
           <h4 class="card__title">${content.title}</h4>
           <p class="card__url">${content.url.replace(/^.*:\/\//i, '')}</p>
-        </a>
-      `};
+        </a>`
+    };
 
     // Setup cards
     if (!!_this.DATA && _this.DATA.posts.length) {
@@ -260,9 +316,7 @@ app.search = {
 
     // Setup filters
     const filtersTemplate = (content, idx) => {
-      return `
-        <a href="#" data-filter="${content.slug}">${content.label}</a>
-      `
+      return `<a href="#" data-filter="${content.slug}">${content.label}</a>`;
     };
 
     if (!!_this.DATA && _this.DATA.posts.length) {
@@ -277,12 +331,57 @@ app.search = {
       });
     };
 
+    // Setup Pagination
+    if (!!_this.DATA && !!_this.DATA.posts.length) {
+      let page = _this.CURRENTE_PAGE;
+      let pageSize = _this.PAGE_SIZE;
+      let total = _this.TOTAL_PAGES = Math.ceil((_this.DATA.posts.length - pageSize) / pageSize);
+
+      console.log(total);
+
+      let markupHtml = '';
+      let container = document.createElement('li');
+      container.className = 'pagination__item';
+
+      if (total > 0) {
+        // Previous Pages
+        if (page - 2 >= 0) {
+          markupHtml = `<span>${page - 1}</span>`;
+          container.setAttribute('data-page', page - 2);
+          document.getElementById('pagination').append(container);
+        }
+
+        if (page - 1 >= 0) {
+          markupHtml = `<span>${page}</span>`;
+          container.setAttribute('data-page', page - 1);
+          document.getElementById('pagination').append(container);
+        }
+
+        // Current Page
+        markupHtml = `<span>${page}</span>`;
+        container.setAttribute('data-page', page + 1);
+        document.getElementById('pagination').append(container);
+
+        // Next Pages
+        if (page + 1 <= totalPages) {
+          markupHtml = `<span>${page + 2}</span>`;
+          container.setAttribute('data-page', page + 1);
+          document.getElementById('pagination').append(container);
+        }
+        if (page + 2 < totalPages) {
+          markupHtml = `<span>${page + 3}</span>`;
+          container.setAttribute('data-page', page + 2);
+          document.getElementById('pagination').append(container);
+        }
+      }
+
+    };
   },
 
 
   // OTHER FUNCTIONS -----------------------------------
   firstPaint: (_callback) => {
-    console.log('=====\nApp Search === first paint\n');
+    console.log('=====\napp Search === first paint\n');
     let _this = app.search;
 
     let callback = _callback;
@@ -339,9 +438,8 @@ app.search = {
 
   paginationHandler: () => {
     document.addEventListener('click', (event) => {
-
-      var _this = event.target;
-      var _parent = _this.parentNode;
+      event.preventDefault();
+      var _this = app.search;
 
       if (!!_this.DATA && !!_this.DATA.posts.length) {
         let totalPosts = _this.DATA.posts.length;
@@ -349,6 +447,8 @@ app.search = {
         console.log('total pages', totalPages);
       }
 
+      _this = event.target;
+      var _parent = _this.parentNode;
       // If the clicked element doesn't have the right selector, bail
       if (_this.matches('.pagination--item')) {
         // Don't follow the link

@@ -1,9 +1,8 @@
 {{ serverCode code="@inherits System.Web.Mvc.WebViewPage" }}
-{{!-- <script type="text/javascript">
-	/*
 
-	FACEBOOK INIT
-
+{{!--
+<script>
+	//FACEBOOK INIT
 	window.fbAsyncInit = function() {
 		FB.init({
 			appId            : '',
@@ -22,13 +21,8 @@
 		js.src = "//connect.facebook.net/en_US/sdk.js";
 		fjs.parentNode.insertBefore(js, fjs);
 	}(document, 'script', 'facebook-jssdk'));
-	*/
 
-
-	/*
-
-	GOOGLE INIT
-
+	//GOOGLE INIT
 	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 	    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -36,9 +30,12 @@
 
 	ga('create', '', 'auto');
 	ga('send', 'pageview');
-	*/
-</script> --}}
+
+</script>
+--}}
 
 {{!-- <script type="text/javascript" src="{{ assetPath "vendor.min.js" type="libs"}}"></script> --}}
 <script type="text/javascript" src="{{ assetPath "custom-plugins.min.js" type="libs"}}"></script>
-<script type="text/javascript" src="{{ assetPath "app.js" type="scripts"}}"></script>
+<script type="text/javascript" src="{{ assetPath "app.min.js" type="scripts"}}"></script>
+
+{{!-- <script id='bycookie-script' data-lang='{{codeLang}}' data-version='1.0.1' data-gtm='' data-gua='' data-fbid='' src='/libs/bycookieapp-XXXX.min.js'></script> --}}

@@ -1,0 +1,37 @@
+{{> utilities/globals/head }}
+
+<body class="" data-lang="pt" data-id="">
+	<div id="fb-root"></div>
+
+	<section class="search__page">
+		<div class="grid container">
+			<div class="col-12">
+				<form id="search__form">
+					<input value="" type="text" name="search-keyword" placeholder="Search...">
+				</form>
+
+			</div>
+
+			<div class="col-2_sm-12_md-3">
+				filters
+				<ul id="search-filters" class="search__filters">
+					<li class="search__item search--active"><a href="#" data-filter="*">All</a></li>
+				</ul>
+
+			</div>
+
+			<div class="col-10_sm-12_md-9">
+				<span>Showing <span id="total-results"></span> results for "<span id="keyword"></span>"</span>
+
+				<ul id="pagination" class="pagination pagination__wrapper"></ul>
+
+				<div id="search-results--cards" class="grid">
+					{{!-- {{> organisms/card }} --}}
+				</div>
+
+			</div>
+		</div>
+	</section>
+
+
+{{> utilities/globals/foot }}

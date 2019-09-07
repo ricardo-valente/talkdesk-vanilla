@@ -1,6 +1,6 @@
 # http://editorconfig.org
 root = true
-[*.{json,js,coffee,less,sass,scss,hbs,html}]
+[*.{json,js,coffee,less,sass,scss,css,hbs,html}]
 indent_style = spaces
 indent_size = 2
 end_of_line = lf

@@ -1,378 +1,490 @@
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-	<script>window.jQuery || document.write('<script src="/scripts/libs/jquery-1.9.1.min.js"><\/script>')</script>
+		<script src="//code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+		<script src="//code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
 
-	<script>
-		jQuery(document).ready(function () {
-			console.log('Index ready O_O');
+		<script type="" src="//cdn.rawgit.com/bycom/jquery-qrcode/master/jquery.qrcode.min.js"></script>
 
-			var nameIndexJSON;
-			var DATA = {};
+		<script>
+			$(document).ready(function () {
+				//removeIf(production)
+				console.log('Index ready O_O');
+				$('.templates, .gui_item').sortable();
 
-			setData = function () {
-				nameIndexJSON = $('header h2').text().replace(/ /g, "_").replace("[", "").replace("]", "").toLowerCase();
-				nameIndexJSON = nameIndexJSON + '_IndexJSON';
+				var nameIndexJSON;
+				var DATA = {};
 
-				DATA.index.project.name = $('.header input[name="name"]').val();
-				DATA.index.project.desc = $('.header input[name="desc"]').val();
+				setData = function () {
+					nameIndexJSON = $('header h2').text().replace(/ /g, "_").replace("[", "").replace("]", "").toLowerCase();
+					nameIndexJSON = nameIndexJSON + '_IndexJSON';
 
-				var teamsArray = [];
-				$('ul.team').find('li:not(.ghost)').each(function () {
-					var $el = $(this),
-						$input = $el.find('input');
+					DATA.index.project.name = $('.header input[name="name"]').val();
+					DATA.index.project.desc = $('.header input[name="desc"]').val();
 
-					if ($input.val() !== '') {
-						teamsArray.push({"title": $input.val()});
+					var teamsArray = [];
+					$('ul.team').find('li:not(.ghost)').each(function () {
+						var $el = $(this),
+							$input = $el.find('input');
+
+						if ($input.val() !== '') {
+							teamsArray.push({"title": $input.val()});
+						}
+					});
+					DATA.index.team = teamsArray;
+
+					var datesArray = [];
+					$('ul.dates').find('li:not(.ghost)').each(function () {
+						var $el = $(this),
+							$input = $el.find('input');
+
+						if ($input.val() !== '') {
+							datesArray.push({"time": $input.val()});
+						}
+					});
+					DATA.index.dates = datesArray;
+
+					var serverArray = [];
+					$('ul.server').find('li:not(.ghost)').each(function () {
+						var $el = $(this),
+							$input1 = ($el.find('input:first-of-type').val() ? $el.find('input:first-of-type').val() : ''),
+							$input2 = ($el.find('input:last-of-type').val() ? $el.find('input:last-of-type').val() : '');
+
+						if ($input1 !== '' || $input2 !== '') {
+							serverArray.push({
+								"title": $input1,
+								"link": $input2
+							});
+						}
+					});
+					DATA.index.server = serverArray;
+
+					var descriptionArray = [];
+					$('ul.description').find('li').each(function () {
+						var $el = $(this),
+							$input = $el.find('input');
+
+						if ($input.val() !== '') {
+							descriptionArray.push({"desc": $input.val()});
+						}
+					});
+					DATA.index.description = descriptionArray;
+
+					var tempaltesArray = [];
+					$('ul.templates').find('li:not(.ghost)').each(function () {
+						var $el = $(this),
+							$input1 = ($el.find('input:first-of-type').val() ? $el.find('input:first-of-type').val() : ''),
+							$input2 = ($el.find('input:nth-of-type(2)').val() ? $el.find('input:nth-of-type(2)').val() : ''),
+							$input3 = $input1 + '-' + $input2.replace(/ /g, "_") + '.html';
+
+						if ($input1 !== '' || $input2 !== '') {
+							tempaltesArray.push({
+								"numb": $input1,
+								"name": $input2,
+								"link": $input3
+							});
+						}
+					});
+					DATA.index.templates = tempaltesArray;
+
+					var guiItemArray = [];
+					$('ul.gui_item').find('li:not(.ghost)').each(function () {
+						var $el = $(this),
+							$input1 = ($el.find('input:first-of-type').val() ? $el.find('input:first-of-type').val() : ''),
+							$input2 = ($el.find('input:nth-of-type(2)').val() ? $el.find('input:nth-of-type(2)').val() : ''),
+							$input3 = $input1 + '-' + $input2.replace(/ /g, "_") + '.html';
+
+						if ($input1 !== '' || $input2 !== '') {
+							guiItemArray.push({
+								"numb": $input1,
+								"name": $input2,
+								"link": $input3
+							});
+						}
+					});
+					DATA.index.gui_item = guiItemArray;
+
+					console.log(DATA);
+
+					// Put the object into storage
+					localStorage.setItem(nameIndexJSON, JSON.stringify(DATA));
+
+					$('body').find('.change').addClass('no-change').removeClass('change');
+					resetValues();
+					exportData();
+				};
+
+				exportData = function () {
+					var key = localStorage.getItem(nameIndexJSON); //csv as a string
+					localStorage.removeItem(nameIndexJSON);
+					var blob = new Blob([key], {type: "text/json"});
+					var url = URL.createObjectURL(blob);
+
+					var downloadJSON = document.querySelector("#results"); // id of the <a> element to render the download link
+					downloadJSON.href = url;
+					downloadJSON.download = "index.json";
+
+					setTimeout(function () {
+						console.log('download');
+						downloadJSON.click();
+					}, 50);
+				};
+
+				resetValues = function () {
+					$('.ghost').find('input, textarea').val('');
+				};
+
+				toggleEdit = function (event, table) {
+					var parent = (table != undefined) ? 'table' : 'td';
+					var _this = $(event.target).closest(parent);
+					_this.toggleClass('no-change change');
+					_this.find('.field-error').removeClass('field-error');
+
+					if (_this.hasClass('change')) {
+						// console.log(_this.find('.ghost').find('input, textarea').first());
+						_this.find('.ghost').find('input, textarea').first().focus();
 					}
-				});
-				DATA.index.team = teamsArray;
+				};
 
-				var datesArray = [];
-				$('ul.dates').find('li:not(.ghost)').each(function () {
-					var $el = $(this),
-						$input = $el.find('input');
+				removeItem = function (event) {
+					var _this = $(event.target);
+					console.log(_this.closest('li'));
 
-					if ($input.val() !== '') {
-						datesArray.push({"time": $input.val()});
-					}
-				});
-				DATA.index.dates = datesArray;
+					setTimeout(function () {
+						_this.closest('li').remove();
+					}, 10);
+				};
 
-				var serverArray = [];
-				$('ul.server').find('li:not(.ghost)').each(function () {
-					var $el = $(this),
-						$input1 = $el.find('input:first-of-type').val(),
-						$input2 = $el.find('input:last-of-type').val();
+				addItem = function (event) {
+					var _this = $(event.srcElement),
+						list = _this.closest('td').find('ul'),
+						$ghost = _this.closest('.ghost'),
+						$fields = _this.closest('.ghost').find('input, textarea'),
+						html = '';
 
-					if ($input1 !== '' || $input2 !== '') {
-						serverArray.push({
-							"title": $input1,
-							"link": $input2
-						});
-					}
-				});
-				DATA.index.server = serverArray;
+					// console.log(_this);
+					// console.log(list.attr('class'), $ghost);
 
-				var descriptionArray = [];
-				$('ul.description').find('li').each(function () {
-					var $el = $(this),
-						$input = $el.find('input');
+					$fields.each(function () {
+						if ($(this).val() === '' || $(this).val() == undefined) {
+							$(this).addClass('field-error');
+						}
+						else {
+							$(this).removeClass('field-error');
+						}
+					});
 
-					if ($input.val() !== '') {
-						descriptionArray.push({"desc": $input.val()});
-					}
-				});
-				DATA.index.description = descriptionArray;
-
-				var tempaltesArray = [];
-				$('ul.templates').find('li:not(.ghost)').each(function () {
-					var $el = $(this),
-						$input1 = $el.find('input:first-of-type').val(),
-						$input2 = $el.find('input:nth-of-type(2)').val();
-
-					if ($input1 !== '' || $input2 !== '') {
-						tempaltesArray.push({
-							"numb": $input1,
-							"name": $input2
-						});
-					}
-				});
-				DATA.index.templates = tempaltesArray;
-
-				var guiItemArray = [];
-				$('ul.gui_item').find('li:not(.ghost)').each(function () {
-					var $el = $(this),
-						$input1 = $el.find('input:first-of-type').val(),
-						$input2 = $el.find('input:nth-of-type(2)').val();
-
-					if ($input1 !== '' || $input2 !== '') {
-						guiItemArray.push({
-							"numb": $input1,
-							"name": $input2
-						});
-					}
-				});
-				DATA.index.gui_item = guiItemArray;
-
-				console.log(DATA);
-
-				// Put the object into storage
-				localStorage.setItem(nameIndexJSON, JSON.stringify(DATA));
-
-				$('body').find('.change').addClass('no-change').removeClass('change');
-				resetValues();
-				exportData();
-			};
-
-			exportData = function () {
-				var key = localStorage.getItem(nameIndexJSON); //csv as a string
-				localStorage.removeItem(nameIndexJSON);
-				var blob = new Blob([key], {type: "text/json"});
-				var url = URL.createObjectURL(blob);
-
-				var downloadJSON = document.querySelector("#results"); // id of the <a> element to render the download link
-				downloadJSON.href = url;
-				downloadJSON.download = "index.json";
-
-				setTimeout(function () {
-					console.log('download');
-					downloadJSON.click();
-				}, 50);
-			};
-
-			resetValues = function () {
-				$('.ghost').find('input, textarea').val('');
-			};
-
-			toggleEdit = function (event, table) {
-				var table = table;
-				var parent = (table != undefined) ? 'table': 'td';
-				var _this = $(event.target).closest(parent);
-				_this.toggleClass('no-change change');
-				_this.find('.field-error').removeClass('field-error');
-			};
-
-			removeItem = function (event) {
-				var _this = $(event.target);
-				console.log(_this.closest('li'));
-
-				setTimeout(function () {
-					_this.closest('li').remove();
-				}, 10);
-			};
-
-			addItem = function (event) {
-				var _this = $(event.srcElement),
-					list = _this.closest('td').find('ul'),
-					$ghost = _this.closest('.ghost'),
-					values = _this.closest('.ghost').find('input, textarea'),
-					html = '';
-
-				console.log(_this);
-				console.log(list.attr('class'), $ghost);
-
-				values.each(function () {
-					if ($(this).val() === '' || $(this).val() == undefined) {
-						$(this).addClass('field-error');
+					if (!!$ghost.find('.field-error').length) {
+						console.warn('field empty');
+						return false;
 					}
 					else {
-						$(this).removeClass('field-error');
+						$fields.removeClass('field-error');
+						if (list.hasClass('team') || list.hasClass('dates')) {
+							console.log(_this);
+							var _thisVal = _this.parent().find('input').val();
+							html += '<span>' + _thisVal + '</span><span class="edit">' +
+								'<input value="' + _thisVal + '">' +
+								'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
+								'</span>';
+
+							console.log(list.attr('class'), _thisVal);
+						}
+						else if (list.hasClass('server')) {
+							var input1 = _this.parent().find('input:first-child').val();
+							var input2 = _this.parent().find('input:nth-child(2)').val();
+
+							html = '<span>' + input1 + ': <a href="' + input2 + '">[LINK]</a></span>' +
+								'<span class="edit">' +
+								'<input placeholder="Servidor" value="' + input1 + '"><input placeholder="Link" value="' + input2 + '">' +
+								'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
+								'</span>';
+
+							console.log('server', input1, input2);
+						}
+						else if (list.hasClass('description')) {
+							var input = _this.parent().find('textarea');
+
+							console.log(list.attr('class'), input.val());
+
+							html += '<span>' + input.val() + '</span>' +
+								'<span class="edit">' +
+								'<input value="' + input.val() + '">' +
+								'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
+								'</span>';
+
+						}
+						else if (list.hasClass('templates') || list.hasClass('gui_item')) {
+							// console.log(list);
+							// console.log(_this);
+							var $input1 = _this.parent().find('input:first-of-type').val(),
+								$input2 = _this.parent().find('input:nth-of-type(2)').val(),
+								$input3 = $input1 + '-' + $input2.replace(/ /g, "_") + '.html';
+
+							html += '<a href="' + $input1 + '-' + $input2 + '.html" target="_blank">' +
+								'<span class="s1">' + $input1 + '</span>' +
+								'<span class="s2">' + $input2 + '</span>' +
+								'<span class="s3">' + $input3 + '</span>' +
+								'</a>' +
+								'<span class="edit">' +
+								'<input value="' + $input1 + '">' +
+								'<input value="' + $input2 + '">' +
+								'<input value="' + $input3 + '" disabled>' +
+								'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
+								'</span>';
+
+							var first = true;
+							nextFocus(first);
+
+							console.log(list.attr('class'), +'1 ' + $input1, +'2 ' + $input2, +'3 ' + $input3);
+						}
+
+						html = '<li>' + html + '</li>';
+						list.append(html);
+						_this.closest('.ghost').find('input, textarea').val('');
 					}
+
+				};
+
+				nextFocus = function (evt, code, first) {
+					setTimeout(function () {
+						var fields = $('body').find('button, input, textarea');
+						var index = fields.index(evt.currentTarget);
+						var _this = $(evt.currentTarget);
+
+						console.log(evt, code, first);
+
+						if (index > -1 && (index + 1) < fields.length) {
+							console.log('1');
+							fields.eq(index + 1).focus();
+						}
+
+						if (first) {
+							console.log('2');
+							_this.closest('.ghost').find('input, textarea').first().focus();
+						}
+					},250)
+				};
+
+				$(document).on('keyup', '.ghost input', function (evt) {
+					var code = (evt.keyCode ? evt.keyCode : evt.which);
+					if (code == 13) nextFocus(evt, code);
 				});
 
-				if (!!$ghost.find('.field-error').length) {
-					console.warn('field empty');
-					return false;
-				}
-				else {
-					values.removeClass('field-error');
-					if (list.attr('class') === 'team' || list.attr('class') === 'dates') {
-						console.log(_this);
-						var _thisVal = _this.parent().find('input').val();
-						html += '<span>' + _thisVal + '</span><span class="edit">' +
-							'<input value="' + _thisVal + '">' +
-							'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
-							'</span>';
+				var wcag = './data/accessibility_validation.json';
+				$.ajax({
+					method: "GET",
+					url: wcag,
+					dataType: "json",
 
-						console.log(list.attr('class'), _thisVal);
-					}
-					else if (list.attr('class') === 'server') {
-						var input1 = _this.parent().find('input:first-child').val();
-						var input2 = _this.parent().find('input:nth-child(2)').val();
+					success: function (response, textStatus) {
+						// console.log(response);
+						// console.log(textStatus);
 
-						html = '<span>' + input1 + ': <a href="' + input2 + '">[LINK]</a></span>' +
-							'<span class="edit">' +
-							'<input placeholder="Servidor" value="' + input1 + '"><input placeholder="Link" value="' + input2 + '">' +
-							'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
-							'</span>';
-
-						console.log('server', input1, input2);
-					}
-					else if (list.attr('class') === 'description') {
-						var input = _this.parent().find('textarea');
-
-						console.log(list.attr('class'), input.val());
-
-						html += '<span>' + input.val() + '</span>' +
-							'<span class="edit">' +
-							'<input value="' + input.val() + '">' +
-							'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
-							'</span>';
+						if (textStatus === 'success') {
+							$.each(response, function (key, value) {
+								console.log('cenas ', key, value);
+								$(document).find('.templates')
+							});
+						}
+						else {
+							console.log("Request failed: " + textStatus);
+						}
+					},
+					error: function (jqXHR, textStatus) {
+						console.log("Request failed: " + textStatus);
 
 					}
-					else if (list.attr('class') === 'templates' || list.attr('class') === 'gui_item') {
-						console.log(_this);
-						var $input1 = _this.parent().find('input:first-of-type').val(),
-							$input2 = _this.parent().find('input:nth-of-type(2)').val(),
-							$input3 = $input1 +'-'+ $input2.replace(/ /g, "_") +'.html';
+				});
+				//endRemoveIf(production)
 
-						html += '<a href="' + $input1 + '-' + $input2 + '.html" target="_blank">' +
-							'<span class="s1">' + $input1 + '</span>' +
-							'<span class="s2">' + $input2 + '</span>' +
-							'<span class="s3">' + $input3 + '</span>' +
-							'</a>' +
-							'<span class="edit">' +
-							'<input value="' + $input1 + '">' +
-							'<input value="' + $input2 + '">' +
-							'<input value="' + $input3 + '" disabled>' +
-							'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
-							'</span>';
+				var idxJSON = './data/index.json';
+				$.ajax({
+					method: "GET",
+					url: idxJSON,
+					dataType: "json",
 
-						console.log(list.attr('class'), +'1 ' + $input1, +'2 ' + $input2, +'3 ' + $input3)
-					}
+					success: function (objData) {
+						DATA = objData;
+						var project = DATA.index.project,
+							date = DATA.index.dates,
+							team = DATA.index.team,
+							serve = DATA.index.server,
+							description = DATA.index.description,
+							templates = DATA.index.templates,
+							guiItems = DATA.index.gui_item;
 
-					html = '<li>' + html + '</li>';
-					list.append(html);
-					_this.closest('.ghost').find('input, textarea').val('');
-				}
+						if (!!project.name.length) {
+							var name = (!!project.name) ? project.name : '',
+								desc = (!!project.desc) ? project.desc : '';
+							var html =
+								'<h2>[' + name + ']</h2>' +
+								'<h3>' + desc + '</h3>';
+							$('header').append(html);
+							$('.header input[name="name"]').val(name);
+							$('.header input[name="desc"]').val(desc);
+						}
+						if (!!date) {
+							var items = date, html = '';
+							for (var i = 0, l = items.length; i < l; i++) {
+								var time = (!!items[i].time) ? items[i].time : 'N/A';
 
-			};
+								html += '<li>' +
+									'<span>' + time + '</span>' +
+									'<span class="edit">' +
+									'<input value="' + time + '">' +
+									'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
+									'</span>' +
+									'</li>';
+							}
+							$('.dates').append(html);
 
+						}
+						if (!!team) {
+							var items = team, html = '';
+							for (var i = 0, l = items.length; i < l; i++) {
+								var title = (!!items[i].title) ? items[i].title : 'N/A';
 
-			var url = window.location.href,
-				arr = url.split("/"),
-				port = parseInt(arr[2].split(':')[1]);
+								html += '<li>' +
+									'<span>' + title + '</span>' +
+									'<span class="edit">' +
+									'<input value="' + title + '">' +
+									'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
+									'</span>' +
+									'</li>';
+							}
+							$('.team').append(html);
+						}
+						if (!!serve) {
+							var items = serve, html = '';
+							for (var i = 0, l = items.length; i < l; i++) {
+								var title = (!!items[i].title) ? items[i].title : 'N/A',
+									link = (!!items[i].link) ? items[i].link : 'N/A';
 
-			jQuery.getJSON((port >= 9000 ? 'scripts/' : '')+'data/index.json', function (objData) {
-				DATA = objData;
-				var project = DATA.index.project,
-					date = DATA.index.dates,
-					team = DATA.index.team,
-					serve = DATA.index.server,
-					description = DATA.index.description,
-					templates = DATA.index.templates,
-					guiItems = DATA.index.gui_item;
-
-				if (!!project.name.length) {
-					var name = (!!project.name) ? project.name : '',
-						desc = (!!project.desc) ? project.desc : '';
-					var html =
-						'<h2>[' + name + ']</h2>' +
-						'<h3>' + desc + '</h3>';
-					$('header').append(html);
-					$('.header input[name="name"]').val(name);
-					$('.header input[name="desc"]').val(desc);
-				}
-				if (!!date) {
-					var items = date, html = '';
-					for (var i = 0, l = items.length; i < l; i++) {
-						var time = (!!items[i].time) ? items[i].time : 'N/A';
-
-						html += '<li>' +
-							'<span>' + time + '</span>' +
-							'<span class="edit">' +
-							'<input value="' + time + '">' +
-							'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
-							'</span>' +
-							'</li>';
-					}
-					$('.dates').append(html);
-
-				}
-				if (!!team) {
-					var items = team, html = '';
-					for (var i = 0, l = items.length; i < l; i++) {
-						var title = (!!items[i].title) ? items[i].title : 'N/A';
-
-						html += '<li>' +
-							'<span>' + title + '</span>' +
-							'<span class="edit">' +
-							'<input value="' + title + '">' +
-							'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
-							'</span>' +
-							'</li>';
-					}
-					$('.team').append(html);
-				}
-				if (!!serve) {
-					var items = serve, html = '';
-					for (var i = 0, l = items.length; i < l; i++) {
-						var title = (!!items[i].title) ? items[i].title : 'N/A',
-							link = (!!items[i].link) ? items[i].link : 'N/A';
-
-						html += '<li>' +
-								'<span>' + title + ': <a href="' + link + '" target="_blank">[LINK]</a></span>' +
-								'<span class="edit">' +
+								html += '<li>' +
+									'<span>' + title + ': <a href="' + link + '" target="_blank">[LINK]</a></span>' +
+									'<div class="qr-code" data-qrc="' + link + '"></div>' +
+									'<span class="edit">' +
 									'<input value="' + title + '">' +
 									'<input value="' + link + '">' +
 									'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
-								'</span>' +
-							'</li>';
-					}
-					$('.server').append(html);
-				}
-				if (!!description) {
-					var items = description, html = '';
-					for (var i = 0, l = items.length; i < l; i++) {
-						console.log('items ', [i], items[i].desc);
-						var desc = (!!items[i].desc) ? items[i].desc : 'N/A';
+									'</span>' +
+									'</li>';
+							}
+							$('.server').append(html);
+							$('.server .qr-code').each(function () {
+								$(this).qrcode($(this).attr('data-qrc'));
 
-						html += '<li>' +
+								console.warn("gui_item QR Code canvas generator = ", $(this).attr('data-qrc'));
+							})
+						}
+						if (!!description) {
+							var items = description, html = '';
+							for (var i = 0, l = items.length; i < l; i++) {
+								console.log('items ', [i], items[i].desc);
+								var desc = (!!items[i].desc) ? items[i].desc : 'N/A';
+
+								html += '<li>' +
 									'<span>' + desc + '</span>' +
 									'<span class="edit">' +
-										'<input value="' + desc + '">' +
-										'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
+									'<input value="' + desc + '">' +
+									'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
 									'</span>' +
-								'</li>';
-					}
-					$('.description').append(html);
-				}
-				if (!!templates) {
-					var items = templates, html = '';
-					for (var i = 0, l = items.length; i < l; i++) {
-						var numb = (!!items[i].numb) ? items[i].numb : 'N/A',
-							name = (!!items[i].name) ? items[i].name : 'N/A';
+									'</li>';
+							}
+							$('.description').append(html);
+						}
+						if (!!templates) {
+							var items = templates, html = '', lastNumb;
 
-						html += `<li>
-									<a href="/pages/${numb}-${name}.html">
-										<span class="s1">${numb}</span>
-										<span class="s2">${name}</span>
-										<span class="s3">/pages/${numb}-${name}.html</span>
-									</a>
-									<span class="edit">
-										<input value="${numb}">
-										<input value="${name}">
-										<input value="/pages/${numb}-${name}.html" disabled>
-										<button class="btn btn-danger" onclick="removeItem(event)">x</button>
-									</span>
-								</li>`;
-					}
-					$('.templates').append(html);
-				}
-				if (!!guiItems) {
-					var items = guiItems, html = '';
-					for (var i = 0, l = items.length; i < l; i++) {
-						var numb = (!!items[i].numb) ? items[i].numb : 'N/A',
-							name = (!!items[i].name) ? items[i].name : 'N/A';
+							for (var i = 0, l = items.length; i < l; i++) {
+								var numb = (!!items[i].numb) ? items[i].numb : 'N/A',
+									name = (!!items[i].name) ? items[i].name : 'N/A',
+									external = (!!project.external) ? project.external : '',
+									border = '';
 
-						html += '<li><a href="/pages/' + numb+'-'+name + '.html">' +
+								name = name.replace(/ /g, '_');
+
+								if (numb !== lastNumb) {
+									lastNumb = numb;
+									border = 'style="border-top:2px solid #99cddc;"';
+								}
+
+								console.log(numb, lastNumb);
+
+								html += '<li ' + border + '>' +
+									'<a href="/pages/' + numb + '-' + name + '.html">' +
 									'<span class="s1">' + numb + '</span>' +
 									'<span class="s2">' + name + '</span>' +
-									'<span class="s3">/pages/' + numb+'-'+name + '.html</span>' +
-								'</a>' +
-								'<span class="edit">' +
+									'<span class="s3">/pages/' + numb + '-' + name + '.html</span>' +
+									'</a>' +
+									'<div class="qr-code" data-qrc="' + external + 'pages/' + numb + '-' + name + '.html"></div>' +
+									'<span class="edit">' +
 									'<input value="' + numb + '">' +
 									'<input value="' + name + '">' +
-									'<input value="/pages/' + numb+'-'+name + '.html" disabled>' +
+									'<input value="/pages/' + numb + '-' + name + '.html" disabled>' +
 									'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
-								'</span></li>';
+									'</span>' +
+									'</li>';
+
+							}
+							$('.templates').append(html);
+							$('.templates .qr-code').each(function () {
+								$(this).qrcode($(this).attr('data-qrc'));
+
+								console.warn("templates QR Code canvas generator = ", $(this).attr('data-qrc'));
+							});
+						}
+						if (!!guiItems) {
+							var items = guiItems, html = '', lastNumb;
+							for (var i = 0, l = items.length; i < l; i++) {
+								var numb = (!!items[i].numb) ? items[i].numb : 'N/A',
+									name = (!!items[i].name) ? items[i].name : 'N/A',
+									external = (!!project.external) ? project.external : '',
+									border = '';
+
+								name = name.replace(/ /g, '_');
+
+								if (numb !== lastNumb) {
+									lastNumb = numb;
+									border = 'style="border-top:2px solid #99cddc;"';
+								}
+
+								html += '<li ' + border + '><a href="/pages/' + numb + '-' + name + '.html">' +
+									'<span class="s1">' + numb + '</span>' +
+									'<span class="s2">' + name + '</span>' +
+									'<span class="s3">/pages/' + numb + '-' + name + '.html</span>' +
+									'</a>' +
+									'<div class="qr-code" data-qrc="' + external + numb + '-' + name + '.html"></div>' +
+									'<span class="edit">' +
+									'<input value="' + numb + '">' +
+									'<input value="' + name + '">' +
+									'<input value="/pages/' + numb + '-' + name + '.html" disabled>' +
+									'<button class="btn btn-danger" onclick="removeItem(event)">x</button>' +
+									'</span></li>';
+							}
+							$('.gui_item').append(html);
+							$('.gui_item .qr-code').each(function () {
+								$(this).qrcode($(this).attr('data-qrc'));
+
+								console.warn("gui_item QR Code canvas generator = ", $(this).attr('data-qrc'));
+							})
+						}
+
+						console.log('project = name ', !!project.name.length);
+						console.log('project = desc ', !!project.desc.length);
+						console.log('date = ', !!date);
+						console.log('team = ', !!team);
+						console.log('serve = ', !!serve);
+						console.log('description = ', !!description);
+						console.log('templates = ', !!templates);
+						console.log('guiItems = ', !!guiItems);
+
+						console.log(DATA.index);
+						window.DATA = DATA.index;
 					}
-					$('.gui_item').append(html);
-				}
-
-
-				console.log('project = name ', !!project.name.length);
-				console.log('project = desc ', !!project.desc.length);
-				console.log('date = ', !!date);
-				console.log('team = ', !!team);
-				console.log('serve = ', !!serve);
-				console.log('description = ', !!description);
-				console.log('templates = ', !!templates);
-				console.log('guiItems = ', !!guiItems);
-
-				console.log(DATA.index);
-				window.DATA = DATA.index;
+				});
+				$(document).on('click', 'canvas', function () {
+					$(this).closest('.qr-code').toggleClass('open');
+				});
 			});
-		});
-	</script>
-</body>
+		</script>
+	</body>
 </html>

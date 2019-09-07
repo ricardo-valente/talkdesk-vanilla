@@ -1029,7 +1029,10 @@
             }
 
             .change li span:not(.edit),
-            .change .templates li>a {
+            .change .templates li>a,
+            .change .templates li canvas,
+            .change .gui_item li>a,
+            .change .gui_item li canvas {
                 display: none;
             }
 
@@ -1126,16 +1129,71 @@
             }
 
             ul.templates li,
-            ul.gui_item li {
-                margin: 0 0 3px 0;
+            ul.gui_item li,
+            ul.server li {
+                min-height: 35px;
+                margin: 0;
+                padding: 5px 0;
                 list-style: none;
+                position: relative;
             }
 
             ul.templates li a,
-            ul.gui_item li a {
+            ul.gui_item li a,
+            ul.server li>span:first-child {
                 display: inline-block;
-                padding: 8px;
+                padding: 10px;
+                width: calc(100% - 35px);
+                line-height: 1.35;
+            }
+
+            ul.templates .qr-code,
+            ul.gui_item .qr-code,
+            ul.server .qr-code {
+                display: inline-block;
+                width: 35px;
+                position: absolute;
+                top: 5px;
+                right: 0;
+            }
+
+            ul.templates .qr-code.open,
+            ul.gui_item .qr-code.open,
+            ul.server .qr-code.open {
+                position: static;
+            }
+
+            ul.templates .qr-code canvas,
+            ul.gui_item .qr-code canvas,
+            ul.server .qr-code canvas {
                 width: 100%;
+                z-index: 10;
+                cursor: pointer;
+            }
+
+            ul.templates .qr-code.open canvas,
+            ul.gui_item .qr-code.open canvas,
+            ul.server .qr-code.open canvas {
+                width: auto;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 1000;
+            }
+
+            ul.templates .qr-code.open::before,
+            ul.gui_item .qr-code.open::before,
+            ul.server .qr-code.open::before {
+                content: '';
+                background-color: rgba(0, 0, 0, .50);
+                position: fixed;
+                top: 0;
+                left: 0;
+                /* transform: translate(-50%, -50%); */
+                width: 100%;
+                height: 100%;
+                z-index: 100;
             }
 
             ul.templates li:nth-child(odd),
@@ -1166,13 +1224,13 @@
             ul.templates li span.s1,
             ul.gui_item li span.s1 {
                 text-transform: uppercase;
-                width: 40px;
+                width: 60px;
                 font-weight: bold;
             }
 
             ul.templates li span.s2,
             ul.gui_item li span.s2 {
-                width: 120px;
+                width: 200px;
             }
 
             ul.templates .edit input:first-of-type,
@@ -1388,7 +1446,7 @@
                                     <ul class="gui_item">
                                     </ul>
                                     <div class="ghost">
-                                        <input placeholder="T00"><input placeholder="Dummy">
+                                        <input placeholder="G00"><input placeholder="Dummy">
                                         <button class="btn btn-success" onclick="addItem(event)">&plus;</button>
                                     </div>
                                 </td>
@@ -1396,6 +1454,7 @@
                         </table>
                     </div>
                 </div>
+                <!--removeIf(production)-->
                 <div class="row" style="margin-top: 25px;">
                     <div class="col-xs-6">
                     </div>
@@ -1406,15 +1465,17 @@
                         <a id="results" style="display: none;">CSV from local store</a>
                     </div>
                 </div>
+                <!--endRemoveIf(production)-->
             </div>
-            <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+            <script src="//code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+            <script src="//code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+            <script type="" src="//cdn.rawgit.com/bycom/jquery-qrcode/master/jquery.qrcode.min.js"></script>
             <script>
-                window.jQuery || document.write('<script src="/scripts/libs/jquery-1.9.1.min.js"><\/script>')
-            </script>
-            <script>
-                jQuery(document).ready(function()
+                $(document).ready(function()
                 {
+                    //removeIf(production)
                     console.log('Index ready O_O');
+                    $('.templates, .gui_item').sortable();
                     var nameIndexJSON;
                     var DATA = {};
                     setData = function()
@@ -1455,8 +1516,8 @@
                         $('ul.server').find('li:not(.ghost)').each(function()
                         {
                             var $el = $(this),
-                                $input1 = $el.find('input:first-of-type').val(),
-                                $input2 = $el.find('input:last-of-type').val();
+                                $input1 = ($el.find('input:first-of-type').val() ? $el.find('input:first-of-type').val() : ''),
+                                $input2 = ($el.find('input:last-of-type').val() ? $el.find('input:last-of-type').val() : '');
                             if ($input1 !== '' || $input2 !== '')
                             {
                                 serverArray.push(
@@ -1485,14 +1546,16 @@
                         $('ul.templates').find('li:not(.ghost)').each(function()
                         {
                             var $el = $(this),
-                                $input1 = $el.find('input:first-of-type').val(),
-                                $input2 = $el.find('input:nth-of-type(2)').val();
+                                $input1 = ($el.find('input:first-of-type').val() ? $el.find('input:first-of-type').val() : ''),
+                                $input2 = ($el.find('input:nth-of-type(2)').val() ? $el.find('input:nth-of-type(2)').val() : ''),
+                                $input3 = $input1 + '-' + $input2.replace(/ /g, "_") + '.html';
                             if ($input1 !== '' || $input2 !== '')
                             {
                                 tempaltesArray.push(
                                 {
                                     "numb": $input1,
-                                    "name": $input2
+                                    "name": $input2,
+                                    "link": $input3
                                 });
                             }
                         });
@@ -1501,14 +1564,16 @@
                         $('ul.gui_item').find('li:not(.ghost)').each(function()
                         {
                             var $el = $(this),
-                                $input1 = $el.find('input:first-of-type').val(),
-                                $input2 = $el.find('input:nth-of-type(2)').val();
+                                $input1 = ($el.find('input:first-of-type').val() ? $el.find('input:first-of-type').val() : ''),
+                                $input2 = ($el.find('input:nth-of-type(2)').val() ? $el.find('input:nth-of-type(2)').val() : ''),
+                                $input3 = $input1 + '-' + $input2.replace(/ /g, "_") + '.html';
                             if ($input1 !== '' || $input2 !== '')
                             {
                                 guiItemArray.push(
                                 {
                                     "numb": $input1,
-                                    "name": $input2
+                                    "name": $input2,
+                                    "link": $input3
                                 });
                             }
                         });
@@ -1544,11 +1609,15 @@
                     };
                     toggleEdit = function(event, table)
                     {
-                        var table = table;
                         var parent = (table != undefined) ? 'table' : 'td';
                         var _this = $(event.target).closest(parent);
                         _this.toggleClass('no-change change');
                         _this.find('.field-error').removeClass('field-error');
+                        if (_this.hasClass('change'))
+                        {
+                            // console.log(_this.find('.ghost').find('input, textarea').first());
+                            _this.find('.ghost').find('input, textarea').first().focus();
+                        }
                     };
                     removeItem = function(event)
                     {
@@ -1564,11 +1633,11 @@
                         var _this = $(event.srcElement),
                             list = _this.closest('td').find('ul'),
                             $ghost = _this.closest('.ghost'),
-                            values = _this.closest('.ghost').find('input, textarea'),
+                            $fields = _this.closest('.ghost').find('input, textarea'),
                             html = '';
-                        console.log(_this);
-                        console.log(list.attr('class'), $ghost);
-                        values.each(function()
+                        // console.log(_this);
+                        // console.log(list.attr('class'), $ghost);
+                        $fields.each(function()
                         {
                             if ($(this).val() === '' || $(this).val() == undefined)
                             {
@@ -1586,155 +1655,242 @@
                         }
                         else
                         {
-                            values.removeClass('field-error');
-                            if (list.attr('class') === 'team' || list.attr('class') === 'dates')
+                            $fields.removeClass('field-error');
+                            if (list.hasClass('team') || list.hasClass('dates'))
                             {
                                 console.log(_this);
                                 var _thisVal = _this.parent().find('input').val();
                                 html += '<span>' + _thisVal + '</span><span class="edit">' + '<input value="' + _thisVal + '">' + '<button class="btn btn-danger" onclick="removeItem(event)">x</button>' + '</span>';
                                 console.log(list.attr('class'), _thisVal);
                             }
-                            else if (list.attr('class') === 'server')
+                            else if (list.hasClass('server'))
                             {
                                 var input1 = _this.parent().find('input:first-child').val();
                                 var input2 = _this.parent().find('input:nth-child(2)').val();
                                 html = '<span>' + input1 + ': <a href="' + input2 + '">[LINK]</a></span>' + '<span class="edit">' + '<input placeholder="Servidor" value="' + input1 + '"><input placeholder="Link" value="' + input2 + '">' + '<button class="btn btn-danger" onclick="removeItem(event)">x</button>' + '</span>';
                                 console.log('server', input1, input2);
                             }
-                            else if (list.attr('class') === 'description')
+                            else if (list.hasClass('description'))
                             {
                                 var input = _this.parent().find('textarea');
                                 console.log(list.attr('class'), input.val());
                                 html += '<span>' + input.val() + '</span>' + '<span class="edit">' + '<input value="' + input.val() + '">' + '<button class="btn btn-danger" onclick="removeItem(event)">x</button>' + '</span>';
                             }
-                            else if (list.attr('class') === 'templates' || list.attr('class') === 'gui_item')
+                            else if (list.hasClass('templates') || list.hasClass('gui_item'))
                             {
-                                console.log(_this);
+                                // console.log(list);
+                                // console.log(_this);
                                 var $input1 = _this.parent().find('input:first-of-type').val(),
                                     $input2 = _this.parent().find('input:nth-of-type(2)').val(),
                                     $input3 = $input1 + '-' + $input2.replace(/ /g, "_") + '.html';
                                 html += '<a href="' + $input1 + '-' + $input2 + '.html" target="_blank">' + '<span class="s1">' + $input1 + '</span>' + '<span class="s2">' + $input2 + '</span>' + '<span class="s3">' + $input3 + '</span>' + '</a>' + '<span class="edit">' + '<input value="' + $input1 + '">' + '<input value="' + $input2 + '">' + '<input value="' + $input3 + '" disabled>' + '<button class="btn btn-danger" onclick="removeItem(event)">x</button>' + '</span>';
-                                console.log(list.attr('class'), +'1 ' + $input1, +'2 ' + $input2, +'3 ' + $input3)
+                                var first = true;
+                                nextFocus(first);
+                                console.log(list.attr('class'), +'1 ' + $input1, +'2 ' + $input2, +'3 ' + $input3);
                             }
                             html = '<li>' + html + '</li>';
                             list.append(html);
                             _this.closest('.ghost').find('input, textarea').val('');
                         }
                     };
-                    var url = window.location.href,
-                        arr = url.split("/"),
-                        port = parseInt(arr[2].split(':')[1]);
-                    jQuery.getJSON((port >= 9000 ? 'scripts/' : '') + 'data/index.json', function(objData)
+                    nextFocus = function(evt, code, first)
                     {
-                        DATA = objData;
-                        var project = DATA.index.project,
-                            date = DATA.index.dates,
-                            team = DATA.index.team,
-                            serve = DATA.index.server,
-                            description = DATA.index.description,
-                            templates = DATA.index.templates,
-                            guiItems = DATA.index.gui_item;
-                        if (!!project.name.length)
+                        setTimeout(function()
                         {
-                            var name = (!!project.name) ? project.name : '',
-                                desc = (!!project.desc) ? project.desc : '';
-                            var html = '<h2>[' + name + ']</h2>' + '<h3>' + desc + '</h3>';
-                            $('header').append(html);
-                            $('.header input[name="name"]').val(name);
-                            $('.header input[name="desc"]').val(desc);
-                        }
-                        if (!!date)
-                        {
-                            var items = date,
-                                html = '';
-                            for (var i = 0, l = items.length; i < l; i++)
+                            var fields = $('body').find('button, input, textarea');
+                            var index = fields.index(evt.currentTarget);
+                            var _this = $(evt.currentTarget);
+                            console.log(evt, code, first);
+                            if (index > -1 && (index + 1) < fields.length)
                             {
-                                var time = (!!items[i].time) ? items[i].time : 'N/A';
-                                html += '<li>' + '<span>' + time + '</span>' + '<span class="edit">' + '<input value="' + time + '">' + '<button class="btn btn-danger" onclick="removeItem(event)">x</button>' + '</span>' + '</li>';
+                                console.log('1');
+                                fields.eq(index + 1).focus();
                             }
-                            $('.dates').append(html);
-                        }
-                        if (!!team)
-                        {
-                            var items = team,
-                                html = '';
-                            for (var i = 0, l = items.length; i < l; i++)
+                            if (first)
                             {
-                                var title = (!!items[i].title) ? items[i].title : 'N/A';
-                                html += '<li>' + '<span>' + title + '</span>' + '<span class="edit">' + '<input value="' + title + '">' + '<button class="btn btn-danger" onclick="removeItem(event)">x</button>' + '</span>' + '</li>';
+                                console.log('2');
+                                _this.closest('.ghost').find('input, textarea').first().focus();
                             }
-                            $('.team').append(html);
-                        }
-                        if (!!serve)
+                        }, 250)
+                    };
+                    $(document).on('keyup', '.ghost input', function(evt)
+                    {
+                        var code = (evt.keyCode ? evt.keyCode : evt.which);
+                        if (code == 13) nextFocus(evt, code);
+                    });
+                    var wcag = './data/accessibility_validation.json';
+                    $.ajax(
+                    {
+                        method: "GET",
+                        url: wcag,
+                        dataType: "json",
+                        success: function(response, textStatus)
                         {
-                            var items = serve,
-                                html = '';
-                            for (var i = 0, l = items.length; i < l; i++)
+                            // console.log(response);
+                            // console.log(textStatus);
+                            if (textStatus === 'success')
                             {
-                                var title = (!!items[i].title) ? items[i].title : 'N/A',
-                                    link = (!!items[i].link) ? items[i].link : 'N/A';
-                                html += '<li>' + '<span>' + title + ': <a href="' + link + '" target="_blank">[LINK]</a></span>' + '<span class="edit">' + '<input value="' + title + '">' + '<input value="' + link + '">' + '<button class="btn btn-danger" onclick="removeItem(event)">x</button>' + '</span>' + '</li>';
+                                $.each(response, function(key, value)
+                                {
+                                    console.log('cenas ', key, value);
+                                    $(document).find('.templates')
+                                });
                             }
-                            $('.server').append(html);
-                        }
-                        if (!!description)
+                            else
+                            {
+                                console.log("Request failed: " + textStatus);
+                            }
+                        },
+                        error: function(jqXHR, textStatus)
                         {
-                            var items = description,
-                                html = '';
-                            for (var i = 0, l = items.length; i < l; i++)
-                            {
-                                console.log('items ', [i], items[i].desc);
-                                var desc = (!!items[i].desc) ? items[i].desc : 'N/A';
-                                html += '<li>' + '<span>' + desc + '</span>' + '<span class="edit">' + '<input value="' + desc + '">' + '<button class="btn btn-danger" onclick="removeItem(event)">x</button>' + '</span>' + '</li>';
-                            }
-                            $('.description').append(html);
+                            console.log("Request failed: " + textStatus);
                         }
-                        if (!!templates)
+                    });
+                    //endRemoveIf(production)
+                    var idxJSON = './data/index.json';
+                    $.ajax(
+                    {
+                        method: "GET",
+                        url: idxJSON,
+                        dataType: "json",
+                        success: function(objData)
                         {
-                            var items = templates,
-                                html = '';
-                            for (var i = 0, l = items.length; i < l; i++)
+                            DATA = objData;
+                            var project = DATA.index.project,
+                                date = DATA.index.dates,
+                                team = DATA.index.team,
+                                serve = DATA.index.server,
+                                description = DATA.index.description,
+                                templates = DATA.index.templates,
+                                guiItems = DATA.index.gui_item;
+                            if (!!project.name.length)
                             {
-                                var numb = (!!items[i].numb) ? items[i].numb : 'N/A',
-                                    name = (!!items[i].name) ? items[i].name : 'N/A';
-                                html += `<li>
-									<a href="/pages/${numb}-${name}.html">
-										<span class="s1">${numb}</span>
-										<span class="s2">${name}</span>
-										<span class="s3">/pages/${numb}-${name}.html</span>
-									</a>
-									<span class="edit">
-										<input value="${numb}">
-										<input value="${name}">
-										<input value="/pages/${numb}-${name}.html" disabled>
-										<button class="btn btn-danger" onclick="removeItem(event)">x</button>
-									</span>
-								</li>`;
+                                var name = (!!project.name) ? project.name : '',
+                                    desc = (!!project.desc) ? project.desc : '';
+                                var html = '<h2>[' + name + ']</h2>' + '<h3>' + desc + '</h3>';
+                                $('header').append(html);
+                                $('.header input[name="name"]').val(name);
+                                $('.header input[name="desc"]').val(desc);
                             }
-                            $('.templates').append(html);
-                        }
-                        if (!!guiItems)
-                        {
-                            var items = guiItems,
-                                html = '';
-                            for (var i = 0, l = items.length; i < l; i++)
+                            if (!!date)
                             {
-                                var numb = (!!items[i].numb) ? items[i].numb : 'N/A',
-                                    name = (!!items[i].name) ? items[i].name : 'N/A';
-                                html += '<li><a href="/pages/' + numb + '-' + name + '.html">' + '<span class="s1">' + numb + '</span>' + '<span class="s2">' + name + '</span>' + '<span class="s3">/pages/' + numb + '-' + name + '.html</span>' + '</a>' + '<span class="edit">' + '<input value="' + numb + '">' + '<input value="' + name + '">' + '<input value="/pages/' + numb + '-' + name + '.html" disabled>' + '<button class="btn btn-danger" onclick="removeItem(event)">x</button>' + '</span></li>';
+                                var items = date,
+                                    html = '';
+                                for (var i = 0, l = items.length; i < l; i++)
+                                {
+                                    var time = (!!items[i].time) ? items[i].time : 'N/A';
+                                    html += '<li>' + '<span>' + time + '</span>' + '<span class="edit">' + '<input value="' + time + '">' + '<button class="btn btn-danger" onclick="removeItem(event)">x</button>' + '</span>' + '</li>';
+                                }
+                                $('.dates').append(html);
                             }
-                            $('.gui_item').append(html);
+                            if (!!team)
+                            {
+                                var items = team,
+                                    html = '';
+                                for (var i = 0, l = items.length; i < l; i++)
+                                {
+                                    var title = (!!items[i].title) ? items[i].title : 'N/A';
+                                    html += '<li>' + '<span>' + title + '</span>' + '<span class="edit">' + '<input value="' + title + '">' + '<button class="btn btn-danger" onclick="removeItem(event)">x</button>' + '</span>' + '</li>';
+                                }
+                                $('.team').append(html);
+                            }
+                            if (!!serve)
+                            {
+                                var items = serve,
+                                    html = '';
+                                for (var i = 0, l = items.length; i < l; i++)
+                                {
+                                    var title = (!!items[i].title) ? items[i].title : 'N/A',
+                                        link = (!!items[i].link) ? items[i].link : 'N/A';
+                                    html += '<li>' + '<span>' + title + ': <a href="' + link + '" target="_blank">[LINK]</a></span>' + '<div class="qr-code" data-qrc="' + link + '"></div>' + '<span class="edit">' + '<input value="' + title + '">' + '<input value="' + link + '">' + '<button class="btn btn-danger" onclick="removeItem(event)">x</button>' + '</span>' + '</li>';
+                                }
+                                $('.server').append(html);
+                                $('.server .qr-code').each(function()
+                                {
+                                    $(this).qrcode($(this).attr('data-qrc'));
+                                    console.warn("gui_item QR Code canvas generator = ", $(this).attr('data-qrc'));
+                                })
+                            }
+                            if (!!description)
+                            {
+                                var items = description,
+                                    html = '';
+                                for (var i = 0, l = items.length; i < l; i++)
+                                {
+                                    console.log('items ', [i], items[i].desc);
+                                    var desc = (!!items[i].desc) ? items[i].desc : 'N/A';
+                                    html += '<li>' + '<span>' + desc + '</span>' + '<span class="edit">' + '<input value="' + desc + '">' + '<button class="btn btn-danger" onclick="removeItem(event)">x</button>' + '</span>' + '</li>';
+                                }
+                                $('.description').append(html);
+                            }
+                            if (!!templates)
+                            {
+                                var items = templates,
+                                    html = '',
+                                    lastNumb;
+                                for (var i = 0, l = items.length; i < l; i++)
+                                {
+                                    var numb = (!!items[i].numb) ? items[i].numb : 'N/A',
+                                        name = (!!items[i].name) ? items[i].name : 'N/A',
+                                        external = (!!project.external) ? project.external : '',
+                                        border = '';
+                                    name = name.replace(/ /g, '_');
+                                    if (numb !== lastNumb)
+                                    {
+                                        lastNumb = numb;
+                                        border = 'style="border-top:2px solid #99cddc;"';
+                                    }
+                                    console.log(numb, lastNumb);
+                                    html += '<li ' + border + '>' + '<a href="/pages/' + numb + '-' + name + '.html">' + '<span class="s1">' + numb + '</span>' + '<span class="s2">' + name + '</span>' + '<span class="s3">/pages/' + numb + '-' + name + '.html</span>' + '</a>' + '<div class="qr-code" data-qrc="' + external + 'pages/' + numb + '-' + name + '.html"></div>' + '<span class="edit">' + '<input value="' + numb + '">' + '<input value="' + name + '">' + '<input value="/pages/' + numb + '-' + name + '.html" disabled>' + '<button class="btn btn-danger" onclick="removeItem(event)">x</button>' + '</span>' + '</li>';
+                                }
+                                $('.templates').append(html);
+                                $('.templates .qr-code').each(function()
+                                {
+                                    $(this).qrcode($(this).attr('data-qrc'));
+                                    console.warn("templates QR Code canvas generator = ", $(this).attr('data-qrc'));
+                                });
+                            }
+                            if (!!guiItems)
+                            {
+                                var items = guiItems,
+                                    html = '',
+                                    lastNumb;
+                                for (var i = 0, l = items.length; i < l; i++)
+                                {
+                                    var numb = (!!items[i].numb) ? items[i].numb : 'N/A',
+                                        name = (!!items[i].name) ? items[i].name : 'N/A',
+                                        external = (!!project.external) ? project.external : '',
+                                        border = '';
+                                    name = name.replace(/ /g, '_');
+                                    if (numb !== lastNumb)
+                                    {
+                                        lastNumb = numb;
+                                        border = 'style="border-top:2px solid #99cddc;"';
+                                    }
+                                    html += '<li ' + border + '><a href="/pages/' + numb + '-' + name + '.html">' + '<span class="s1">' + numb + '</span>' + '<span class="s2">' + name + '</span>' + '<span class="s3">/pages/' + numb + '-' + name + '.html</span>' + '</a>' + '<div class="qr-code" data-qrc="' + external + numb + '-' + name + '.html"></div>' + '<span class="edit">' + '<input value="' + numb + '">' + '<input value="' + name + '">' + '<input value="/pages/' + numb + '-' + name + '.html" disabled>' + '<button class="btn btn-danger" onclick="removeItem(event)">x</button>' + '</span></li>';
+                                }
+                                $('.gui_item').append(html);
+                                $('.gui_item .qr-code').each(function()
+                                {
+                                    $(this).qrcode($(this).attr('data-qrc'));
+                                    console.warn("gui_item QR Code canvas generator = ", $(this).attr('data-qrc'));
+                                })
+                            }
+                            console.log('project = name ', !!project.name.length);
+                            console.log('project = desc ', !!project.desc.length);
+                            console.log('date = ', !!date);
+                            console.log('team = ', !!team);
+                            console.log('serve = ', !!serve);
+                            console.log('description = ', !!description);
+                            console.log('templates = ', !!templates);
+                            console.log('guiItems = ', !!guiItems);
+                            console.log(DATA.index);
+                            window.DATA = DATA.index;
                         }
-                        console.log('project = name ', !!project.name.length);
-                        console.log('project = desc ', !!project.desc.length);
-                        console.log('date = ', !!date);
-                        console.log('team = ', !!team);
-                        console.log('serve = ', !!serve);
-                        console.log('description = ', !!description);
-                        console.log('templates = ', !!templates);
-                        console.log('guiItems = ', !!guiItems);
-                        console.log(DATA.index);
-                        window.DATA = DATA.index;
+                    });
+                    $(document).on('click', 'canvas', function()
+                    {
+                        $(this).closest('.qr-code').toggleClass('open');
                     });
                 });
             </script>
