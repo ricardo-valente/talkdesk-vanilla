@@ -13,9 +13,12 @@
 			</div>
 
 			<div class="col-2_sm-12_md-3">
-				filters
 				<ul id="search-filters" class="search__filters">
-					<li class="search__item search--active"><a href="#" data-filter="*">All</a></li>
+					<li class="search__item search__item--active"><span data-filter="*">All</span></li>
+					<li class="search__item"><span data-filter="Products">Product</span></li>
+					<li class="search__item"><span data-filter="Blog">Blog</span></li>
+					<li class="search__item"><span data-filter="News & Press">News & Press</span></li>
+					<li class="search__item"><span data-filter="Resources">Resources</span></li>
 				</ul>
 
 			</div>
@@ -23,11 +26,11 @@
 			<div class="col-10_sm-12_md-9">
 				<span>Showing <span id="total-results"></span> results for "<span id="keyword"></span>"</span>
 
-				<ul id="pagination" class="pagination pagination__wrapper"></ul>
-
 				<div id="search-results--cards" class="grid">
 					{{!-- {{> organisms/card }} --}}
 				</div>
+
+				<ul id="pagination" class="pagination pagination__wrapper"></ul>
 
 			</div>
 		</div>
