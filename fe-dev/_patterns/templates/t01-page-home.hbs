@@ -6,8 +6,13 @@
 	<section class="search__page">
 		<div class="grid container">
 			<div class="col-12">
-				<form id="search__form">
-					<input value="" type="text" name="search-keyword" placeholder="Search...">
+				<form id="search__form" class="grid-top" onsubmit="app.search.searchKeyword(event); return false;">
+					<div class="col-8">
+						<input value="" type="text" name="search-keyword" placeholder="Search...">
+					</div>
+					<div class="col-4 justify-content-right">
+						<button type="submit" class="button button--teal">Search</button>
+					</div>
 				</form>
 
 			</div>
@@ -37,4 +42,4 @@
 	</section>
 
 
-{{> utilities/globals/foot }}
+	{{> utilities/globals/foot }}

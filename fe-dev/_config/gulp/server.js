@@ -15,7 +15,7 @@ gulp.task('localserve', function () {
 	gulp.watch([cfg.src.images], ['images:clean', 'images']);
 
 	gulp.watch(cfg.dist.root + '/*.html').on('change', browserSync.reload);
-	gulp.watch(cfg.dist.root + '/scripts/*.js').on('change', browserSync.reload);
+	gulp.watch(cfg.dist.root + '/scripts/*.min.js').on('change', browserSync.reload);
 	gulp.watch(cfg.dist.root + '/data/**/*.json').on('change', browserSync.reload);
-	gulp.watch(cfg.dist.root + '/css/*.css').on('change', browserSync.stream);
+	gulp.watch(cfg.dist.root + '/css/*.min.css').on('change', browserSync.stream);
 });

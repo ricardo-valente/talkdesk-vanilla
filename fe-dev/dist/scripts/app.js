@@ -287,6 +287,7 @@ app.search = {
     let _this = app.search;
 
     _this.filtersHandler();
+    _this.searchKeyword();
     _this.paginationHandler();
   },
 
@@ -323,23 +324,6 @@ app.search = {
           document.getElementById('search-results--cards').append(container);
         });
     };
-
-    // // Setup filters
-    // const filtersTemplate = (content, idx) => {
-    //   return `<span data-filter="${content.slug}">${content.label}</span>`;
-    // };
-
-    // if (!!_this.DATA && _this.DATA.posts.length) {
-    //   _this.DATA.menu.map((content, idx) => {
-    //     let markupHtml = filtersTemplate(content, idx);
-    //     let container = document.createElement('li');
-
-    //     container.className = 'search__item';
-    //     container.innerHTML = markupHtml;
-
-    //     document.getElementById('search-filters').append(container);
-    //   });
-    // };
 
     // Setup Pagination
     if (!!_this.DATA && !!_this.DATA.posts.length) {
@@ -576,6 +560,15 @@ app.search = {
         }
       }
 
+    }, false);
+  },
+
+  searchKeyword: () => {
+    document.addEventListener('click', (event) => {
+      let $this = event.target;
+      let formData = $this.serialize();
+
+      console.log(formData);
     }, false);
   },
 

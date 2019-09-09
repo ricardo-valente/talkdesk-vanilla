@@ -53,3 +53,20 @@ table {
   border-collapse: collapse;
   border-spacing: 0;
 }
+
+input, select, textarea {
+  display: block;
+  width: 100%;
+  padding-top: .9375rem;
+  padding-bottom: .6875rem;
+  padding-left: .9375rem;
+  padding-right: .9375rem;
+  font-family: "Roboto",sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #172241;
+  background-color: #fff;
+  outline: none;
+  border: none;
+  border-radius: 3px;
+}

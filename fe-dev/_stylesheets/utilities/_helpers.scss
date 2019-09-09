@@ -1,0 +1,31 @@
+.justify-content {
+  &-right {
+    display: flex;
+    justify-content: flex-end;
+  }
+  &-left {
+    display: flex;
+    justify-content: flex-start;
+  }
+  &-center {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.text {
+  // Colors
+  &-orange {
+    color: $color1;
+  }
+  &-bluegray {
+    color: $color2;
+  }
+  // END Colors
+
+  // text style
+  &-capitalize {
+    text-transform: capitalize;
+  }
+  // END text style
+}

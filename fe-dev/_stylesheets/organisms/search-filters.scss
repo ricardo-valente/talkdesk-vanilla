@@ -1,7 +1,7 @@
 .search {
   &__item {
     @include fontSize(1rem, 1.25rem);
-    line-height: 1.875rem;
+    line-height: 1.875;
     margin-bottom: 0;
     padding-left: 1.125rem;
 
@@ -13,15 +13,13 @@
           width: 100%;
           height: 2px;
           bottom: -2px;
-          background-color: #172241;
+          background-color: $color0;
         }
       }
     }
 
     span {
       @include font('body', 'semi-bold');
-      @include fontSize(0.8125rem, 1.25rem);
-      line-height: 2.875rem;
       color: $color0;
       text-decoration: none;
       position: relative;
@@ -36,7 +34,7 @@
           width: 100%;
           height: 2px;
           bottom: -2px;
-          background-color: #172241;
+          background-color: $color0;
         }
       }
     }

@@ -1,16 +1,29 @@
-.text {
-  // Colors
-  &-orange {
-    color: $color1;
-  }
-  &-bluegray {
-    color: $color2;
-  }
-  // END Colors
+.button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 206px;
+  padding-top: 0.6875rem;
+  padding-bottom: 0.5625rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3125rem;
+  letter-spacing: 1px;
+  text-align: center;
+  text-transform: uppercase;
+  color: #fff;
+  border: 2px solid;
+  border-radius: 3px;
 
-  // text style
-  &-capitalize {
-    text-transform: capitalize;
+  &--teal {
+    background-color: $color3;
+    border-color: $color3;
+
+    width: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+    min-width: auto;
   }
-  // END text style
 }
