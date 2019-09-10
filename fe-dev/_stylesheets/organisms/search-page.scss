@@ -2,4 +2,12 @@
   &__page {
     margin-top: 7rem;
   }
+
+  &-results {
+    &__title {
+      @include font('body', 'normal');
+      font-size: 0.75rem;
+      margin-bottom: 0.5rem !important;
+    }
+  }
 }
