@@ -6,7 +6,7 @@
 	<section class="search__page">
 		<div class="grid container">
 			<div class="col-12">
-				<form id="search__form" class="grid-top" onsubmit="app.search.searchKeyword(event); return false;">
+				<form id="search__form" class="grid-top" onsubmit="app.search.searchHandler(event); return false;">
 					<div class="col-8">
 						<input value="" type="text" name="search-keyword" placeholder="Search...">
 					</div>
@@ -14,7 +14,6 @@
 						<button type="submit" class="button button--teal">Search</button>
 					</div>
 				</form>
-
 			</div>
 
 			<div class="col-2_sm-12_md-3">
@@ -25,11 +24,10 @@
 					<li class="search__item"><span data-filter="News & Press">News & Press</span></li>
 					<li class="search__item"><span data-filter="Resources">Resources</span></li>
 				</ul>
-
 			</div>
 
 			<div class="col-10_sm-12_md-9">
-				<span>Showing <span id="total-results"></span> results for "<span id="keyword"></span>"</span>
+				<p class="search-results__title">Showing <span id="total-results"></span> results for "<span id="keyword"></span>"</p>
 
 				<div id="search-results--cards" class="grid">
 					{{!-- {{> organisms/card }} --}}
