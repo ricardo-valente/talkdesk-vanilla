@@ -16,5 +16,9 @@ form {
       -webkit-text-fill-color: transparent;
       margin-bottom: 2rem;
     }
+
+    &:focus {
+      text-shadow: 0px 0px 0px $color0;
+    }
   }
 }

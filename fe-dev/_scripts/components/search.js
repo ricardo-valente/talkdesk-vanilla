@@ -3,8 +3,8 @@ app.search = {
   // Configs + Constants
   TIMERS: '',
   DATA: '',
-  API_SEARCH: 'https://talkdesk-com.meza.talkdeskqa.com/wp-json/external/globalsearch/',
-  // API_SEARCH: 'https://talkdesk.com/wp-json/external/globalsearch?search=Five9',
+  // API_SEARCH: 'https://talkdesk-com.meza.talkdeskqa.com/wp-json/external/globalsearch/',
+  API_SEARCH: 'https://talkdesk.com/wp-json/external/globalsearch',
   // Pagination
   PAGE_SIZE: 10,
   PAGES_TO_SKIPE: 0,
@@ -12,6 +12,8 @@ app.search = {
   TOTAL_ITEMS: 0,
   CURRENT_PAGE: 1,
   // END Pagination
+  CURRENT_DATA: '',
+  KEYWORD: '',
 
 
   // MAIN FUNCTIONS ------------------------------------
@@ -28,11 +30,19 @@ app.search = {
 
   setupEvents: () => {
     console.log('=====\napp Search === Events\n');
+    let _HELPERS = app.helpers;
     let _this = app.search;
 
     _this.filtersHandler();
-    _this.searchKeyword();
     _this.paginationHandler();
+
+    document.querySelector('form').addEventListener('change', (event) => {
+      let $this = event.currentTarget;
+      let formData = _HELPERS.serializeArray($this);
+
+      _this.KEYWORD = formData[0].value;
+      // console.log('=======\nSetup events\nnew keyword', _this.KEYWORD, '\n======');
+    });
   },
 
   setupLayout: () => {
@@ -52,13 +62,19 @@ app.search = {
 
     // Setup cards
     if (!!_this.DATA && _this.DATA.posts.length) {
-      _this.PAGES_TO_SKIPE = _this.PAGE_SIZE * _this.CURRENT_PAGE;
+      _this.CURRENT_DATA = _this.DATA.posts;
 
-      // console.log(_this.DATA.posts.slice(_this.PAGES_TO_SKIPE, -((_this.DATA.posts.length - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE)));
+      _this.CURRENT_DATA
+        .sort((a, b) => {
+          // console.log('sort');
+          // Turn your strings into dates, and then subtract them
+          // to get a value that is either negative, positive, or zero.
 
-      _this.DATA.posts
-        .slice(_this.PAGES_TO_SKIPE, -((_this.DATA.posts.length - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE))
+          return new Date(b.date) - new Date(a.date);
+        })
+        .slice(_this.PAGES_TO_SKIPE, -((_this.CURRENT_DATA.length - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE))
         .map((content, idx) => {
+          // console.log('map');
           let markupHtml = cardsTemplate(content, idx);
           let container = document.createElement('div');
 
@@ -67,69 +83,71 @@ app.search = {
 
           document.getElementById('search-results--cards').append(container);
         });
+
+      // console.log(_this.CURRENT_DATA);
     };
 
     // Setup Pagination
-    if (!!_this.DATA && !!_this.DATA.posts.length) {
-      let page = _this.CURRENT_PAGE;
-      let pageSize = _this.PAGE_SIZE;
-      let total = _this.TOTAL_PAGES = Math.ceil((_this.DATA.posts.length - pageSize) / pageSize);
+    if (!!_this.DATA && !!_this.CURRENT_DATA) {
+      _this.TOTAL_PAGES = ((_this.CURRENT_DATA.length) / _this.PAGE_SIZE).toFixed();
 
       let markup = '';
       let container;
 
-      if (total > 0) {
+      if (_this.TOTAL_PAGES > 1) {
         // Previous Pages
-        if (page - 2 > 0) {
-          markup = `${page - 2}`;
+        if (_this.CURRENT_PAGE - 2 > 0) {
+          markup = `${_this.CURRENT_PAGE - 2}`;
           container = document.createElement('li');
 
           container.className = 'pagination__item';
-          container.setAttribute('data-page', page - 2);
+          container.setAttribute('data-page', _this.CURRENT_PAGE - 2);
           container.innerHTML = markup;
           document.getElementById('pagination').appendChild(container);
         }
 
-        if (page - 1 > 0) {
-          markup = `${page - 1}`;
+        if (_this.CURRENT_PAGE - 1 > 0) {
+          markup = `${_this.CURRENT_PAGE - 1}`;
           container = document.createElement('li');
 
           container.className = 'pagination__item';
-          container.setAttribute('data-page', page - 1);
+          container.setAttribute('data-page', _this.CURRENT_PAGE - 1);
           container.innerHTML = markup;
           document.getElementById('pagination').appendChild(container);
         }
 
         // Current Page
-        markup = `${page}`;
+        markup = `${_this.CURRENT_PAGE}`;
         container = document.createElement('li');
 
         container.className = 'pagination__item pagination__item--active';
-        container.setAttribute('data-page', page);
+        container.setAttribute('data-page', _this.CURRENT_PAGE);
         container.innerHTML = markup;
         document.getElementById('pagination').appendChild(container);
 
         // Next Pages
-        if (page + 1 <= total) {
-          markup = `${page + 1}`;
+        if (_this.CURRENT_PAGE + 1 <= _this.TOTAL_PAGES) {
+          markup = `${_this.CURRENT_PAGE + 1}`;
           container = document.createElement('li');
 
           container.className = 'pagination__item';
-          container.setAttribute('data-page', page + 1);
+          container.setAttribute('data-page', _this.CURRENT_PAGE + 1);
           container.innerHTML = markup;
           document.getElementById('pagination').appendChild(container);
         }
-        if (page + 2 < total) {
-          markup = `${page + 2}`;
+        if (_this.CURRENT_PAGE + 2 < _this.TOTAL_PAGES) {
+          markup = `${_this.CURRENT_PAGE + 2}`;
           container = document.createElement('li');
 
           container.className = 'pagination__item';
-          container.setAttribute('data-page', page + 2);
+          container.setAttribute('data-page', _this.CURRENT_PAGE + 2);
           container.innerHTML = markup;
           document.getElementById('pagination').appendChild(container);
         }
       }
     };
+
+    document.getElementById('total-results').textContent = _this.CURRENT_DATA.length;
   },
 
   // OTHER FUNCTIONS -----------------------------------
@@ -148,13 +166,6 @@ app.search = {
       .then((data) => {
         _this.DATA = data;
 
-        // Sort Posts by date desc
-        _this.DATA.posts = _this.DATA.posts.sort((a, b) => {
-          // Turn your strings into dates, and then subtract them
-          // to get a value that is either negative, positive, or zero.
-          return new Date(b.date) - new Date(a.date);
-        });
-
         if (typeof callback === 'function') {
           callback();
         }
@@ -163,18 +174,6 @@ app.search = {
         console.log(error)
         _this.DATA = data;
       });
-  },
-
-  searchHandler: () => {
-    let form = document.getElementById('search__form');
-    form.addEventListener('submit', (event) => {
-      event.preventDefault();
-
-      console.log('submit search');
-      var formData = serialize(form);
-
-      console.log('form data', formData);
-    });
   },
 
   filtersHandler: () => {
@@ -187,7 +186,8 @@ app.search = {
         event.preventDefault();
 
         if ($parent.matches('.search__item') && !$parent.matches('.search__item--active')) {
-          console.log('======\n Filters Handler ===', $this.getAttribute('data-filter'));
+          console.log('=====\nFilter Handler');
+          console.log('active filter = "', $this.getAttribute('data-filter'), '"');
 
           // Reset Cards & Pagination
           document.getElementById('search-results--cards').innerHTML = '';
@@ -202,8 +202,6 @@ app.search = {
 
           // Setup cards
           if (!!_this.DATA && _this.DATA.posts.length) {
-            _this.CURRENT_PAGE = 1;
-
             // Setup cards
             const cardsTemplate = (content, idx) => {
               return `
@@ -215,19 +213,46 @@ app.search = {
                 </a>`
             };
 
-            let _slug = $this.getAttribute('data-filter');
+            let _category = $this.getAttribute('data-filter') === '*' ? false : $this.getAttribute('data-filter');
+
+            _this.CURRENT_PAGE = 1;
             _this.TOTAL_PAGES = 0;
             _this.TOTAL_ITEMS = 0;
+            _this.PAGES_TO_SKIPE = 0;
 
-            let dataObject = _this.DATA.posts;
-            dataObject
-              .filter((x) => {
-                if (x.category === _slug) {
-                  _this.TOTAL_ITEMS++;
-                  _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? (_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE : 0;
+            _this.CURRENT_DATA = _this.DATA.posts
+              .filter((item) => {
+                if (!!_category) { // Has Category difernent than All '*'
+                  if (!!_this.KEYWORD) { // Has Keyword
+                    if (item.category === _category && item.title.toLowerCase().indexOf(_this.KEYWORD.toLowerCase()) != -1) {
+                      _this.TOTAL_ITEMS++;
+                      _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+                      return item;
+                    }
+                  } else { // No Keyword with Category
+                    if (item.category === _category) {
+                      _this.TOTAL_ITEMS++;
+                      _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+                      return item;
+                    }
+                  }
+                } else { // All Category
+                  if (!!_this.KEYWORD) { // Has Keyword
+                    if (item.title.toLowerCase().indexOf(_this.KEYWORD.toLowerCase()) != -1) {
+                      _this.TOTAL_ITEMS++;
+                      _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+                      return item;
+                    }
+                  } else { // No Keyword & no Category
+                    _this.TOTAL_ITEMS++;
+                    _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+                    return item;
+                  }
                 }
-                return x.category === _slug
-              })
+              });
+
+            // Append DATA to RESTULS
+            _this.CURRENT_DATA
               .slice(_this.PAGES_TO_SKIPE, -((_this.TOTAL_ITEMS - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE))
               .map((content, idx) => {
                 let markupHtml = cardsTemplate(content, idx);
@@ -238,13 +263,14 @@ app.search = {
 
                 document.getElementById('search-results--cards').append(container);
               });
+            console.log('current data = ', _this.CURRENT_DATA);
           };
 
           // Setup Pagination
           if (!!_this.TOTAL_ITEMS) {
             let page = parseInt(_this.CURRENT_PAGE);
             let pageSize = _this.PAGE_SIZE;
-            let total = _this.TOTAL_PAGES = Math.ceil((_this.TOTAL_ITEMS - pageSize) / pageSize);
+            let total = _this.TOTAL_PAGES = ((_this.TOTAL_ITEMS - pageSize) / pageSize).toFixed();
 
             let markup = '';
             let container;
@@ -301,141 +327,311 @@ app.search = {
               }
             }
           };
+
+          document.getElementById('total-results').textContent = _this.TOTAL_ITEMS || _this.CURRENT_DATA.length;
+
+          console.log('total pages = "', _this.TOTAL_PAGES, '"');
+          console.log('total items = "', _this.TOTAL_ITEMS || _this.CURRENT_DATA.length, '"\n======');
         }
       }
 
     }, false);
   },
 
-  searchKeyword: () => {
-    document.addEventListener('click', (event) => {
-      let $this = event.target;
-      let formData = $this.serialize();
-
-      console.log(formData);
-    }, false);
-  },
-
   paginationHandler: () => {
     document.addEventListener('click', (event) => {
-      event.preventDefault();
       let _this = app.search;
       let $this = event.target;
 
-      let _slug = document.querySelector('.search__item--active').children[0].getAttribute('data-filter');
-
-      if ($this.matches('.pagination__item') && !$this.matches('.pagination__item--active')) {
+      if ($this.hasAttribute('data-page')) {
         event.preventDefault();
-        // Setup cards
-        if (!!_this.DATA && _this.DATA.posts.length) {
-          app.search.CURRENT_PAGE = $this.getAttribute('data-page');
 
-          _this = app.search;
+        let _slug = document.querySelector('.search__item--active').children[0].getAttribute('data-filter');
 
-          // Setup cards
-          const cardsTemplate = (content, idx) => {
-            return `
-            <a href="${content.url}" class="" target="_self" title="${content.title}">
-              <span class="card__label text-orange">${content.category}</span>
-              <span class="card__label text-capitalize">${content.date}</span>
-              <h4 class="card__title">${content.title}</h4>
-              <p class="card__url">${content.url.replace(/^.*:\/\//i, '')}</p>
-            </a>`
+        if ($this.matches('.pagination__item') && !$this.matches('.pagination__item--active')) {
+          event.preventDefault();
+
+          if (!!_this.DATA && !!_this.DATA.posts || !!_this.CURRENT_DATA) {
+            _this.CURRENT_PAGE = $this.getAttribute('data-page');
+
+            // Reset Cards
+            document.getElementById('search-results--cards').innerHTML = '';
+            document.getElementById('pagination').innerHTML = '';
+            // END Reset Cards
+
+            _this.PAGES_TO_SKIPE = _this.PAGE_SIZE * _this.CURRENT_PAGE;
+
+            // Setup cards
+            const cardsTemplate = (content, idx) => {
+              return `
+              <a href="${content.url}" class="" target="_self" title="${content.title}">
+                <span class="card__label text-orange">${content.category}</span>
+                <span class="card__label text-capitalize">${content.date}</span>
+                <h4 class="card__title">${content.title}</h4>
+                <p class="card__url">${content.url.replace(/^.*:\/\//i, '')}</p>
+              </a>`
+            };
+
+            let dataObject = _this.CURRENT_DATA;
+            if (_slug === '*') {
+              _this.TOTAL_PAGES = ((_this.DATA.posts.length - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed();
+              _this.TOTAL_ITEMS = _this.DATA.posts.length;
+              dataObject
+                .slice(_this.PAGES_TO_SKIPE, -((_this.DATA.posts.length - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE))
+                .map((content, idx) => {
+                  let markupHtml = cardsTemplate(content, idx);
+                  let container = document.createElement('div');
+
+                  container.className = 'col-12 card';
+                  container.innerHTML = markupHtml;
+
+                  document.getElementById('search-results--cards').append(container);
+                });
+            } else {
+              _this.TOTAL_PAGES = 0;
+              _this.TOTAL_ITEMS = 0;
+
+              dataObject
+                .filter((item) => {
+                  if (item.category === _slug) {
+                    _this.TOTAL_ITEMS++;
+                    _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+                  }
+
+                  return item.category === _slug
+                })
+                .slice(_this.PAGES_TO_SKIPE, -((_this.TOTAL_ITEMS - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE))
+                .map((content, idx) => {
+                  let markupHtml = cardsTemplate(content, idx);
+                  let container = document.createElement('div');
+
+                  container.className = 'col-12 card';
+                  container.innerHTML = markupHtml;
+
+                  document.getElementById('search-results--cards').append(container);
+                });
+            }
+            //END Setup cards
+
+            // Setup Pagination
+            _this.CURRENT_PAGE = parseInt($this.getAttribute('data-page'));
+            let total = _this.TOTAL_PAGES;
+
+            let markup = '';
+            let container;
+
+            if (_this.TOTAL_PAGES > 0) {
+              // Previous Pages
+              if (_this.CURRENT_PAGE - 2 > 0) {
+                markup = `${_this.CURRENT_PAGE - 2}`;
+                container = document.createElement('li');
+
+                container.className = 'pagination__item';
+                container.setAttribute('data-page', _this.CURRENT_PAGE - 2);
+                container.innerHTML = markup;
+                document.getElementById('pagination').appendChild(container);
+              }
+
+              if (_this.CURRENT_PAGE - 1 > 0) {
+                markup = `${_this.CURRENT_PAGE - 1}`;
+                container = document.createElement('li');
+
+                container.className = 'pagination__item';
+                container.setAttribute('data-page', _this.CURRENT_PAGE - 1);
+                container.innerHTML = markup;
+                document.getElementById('pagination').appendChild(container);
+              }
+
+              // Current Page
+              markup = `${_this.CURRENT_PAGE}`;
+              container = document.createElement('li');
+
+              container.className = 'pagination__item pagination__item--active';
+              container.setAttribute('data-page', _this.CURRENT_PAGE);
+              container.innerHTML = markup;
+              document.getElementById('pagination').appendChild(container);
+
+              // Next Pages
+              if (_this.CURRENT_PAGE + 1 <= total) {
+                markup = `${_this.CURRENT_PAGE + 1}`;
+                container = document.createElement('li');
+
+                container.className = 'pagination__item';
+                container.setAttribute('data-page', _this.CURRENT_PAGE + 1);
+                container.innerHTML = markup;
+                document.getElementById('pagination').appendChild(container);
+              }
+
+              if (_this.CURRENT_PAGE + 2 <= total) {
+                markup = `${_this.CURRENT_PAGE + 2}`;
+                container = document.createElement('li');
+
+                container.className = 'pagination__item';
+                container.setAttribute('data-page', _this.CURRENT_PAGE + 2);
+                container.innerHTML = markup;
+                document.getElementById('pagination').appendChild(container);
+              }
+            }
+            // END Setup pagination
           };
 
-          // Reset Cards
-          document.getElementById('search-results--cards').innerHTML = '';
-          // END Reset Cards
+          document.getElementById('total-results').textContent = _this.TOTAL_ITEMS;
 
-          _this.PAGES_TO_SKIPE = _this.PAGE_SIZE * _this.CURRENT_PAGE;
-          _this.TOTAL_PAGES = 0;
-          _this.TOTAL_ITEMS = 0;
-
-          let dataObject = _this.DATA.posts;
-          dataObject
-            .filter((x) => {
-              if (x.category === _slug) {
-                _this.TOTAL_ITEMS++;
-                _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? (_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE : 0;
-              }
-              return x.category === _slug
-            })
-            .slice(_this.PAGES_TO_SKIPE, -((_this.TOTAL_ITEMS - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE))
-            .map((content, idx) => {
-              let markupHtml = cardsTemplate(content, idx);
-              let container = document.createElement('div');
-
-              container.className = 'col-12 card';
-              container.innerHTML = markupHtml;
-
-              document.getElementById('search-results--cards').append(container);
-            });
-        };
-
-        // Setup Pagination
-        if (!!_this.DATA && !!_this.DATA.posts.length) {
-          let page = parseInt(_this.CURRENT_PAGE);
-          let pageSize = _this.PAGE_SIZE;
-          let total = _this.TOTAL_PAGES = Math.ceil((_this.DATA.posts.length - pageSize) / pageSize);
-
-          let markup = '';
-          let container;
-
-          document.getElementById('pagination').innerHTML = '';
-
-          if (total > 0) {
-            // Previous Pages
-            if (page - 2 > 0) {
-              markup = `${page - 2}`;
-              container = document.createElement('li');
-
-              container.className = 'pagination__item';
-              container.setAttribute('data-page', page - 2);
-              container.innerHTML = markup;
-              document.getElementById('pagination').appendChild(container);
-            }
-
-            if (page - 1 > 0) {
-              markup = `${page - 1}`;
-              container = document.createElement('li');
-
-              container.className = 'pagination__item';
-              container.setAttribute('data-page', page - 1);
-              container.innerHTML = markup;
-              document.getElementById('pagination').appendChild(container);
-            }
-
-            // Current Page
-            markup = `${page}`;
-            container = document.createElement('li');
-
-            container.className = 'pagination__item pagination__item--active';
-            container.setAttribute('data-page', page);
-            container.innerHTML = markup;
-            document.getElementById('pagination').appendChild(container);
-
-            // Next Pages
-            if (page + 1 <= total) {
-              markup = `${page + 1}`;
-              container = document.createElement('li');
-
-              container.className = 'pagination__item';
-              container.setAttribute('data-page', page + 1);
-              container.innerHTML = markup;
-              document.getElementById('pagination').appendChild(container);
-            }
-            if (page + 2 < total) {
-              markup = `${page + 2}`;
-              container = document.createElement('li');
-
-              container.className = 'pagination__item';
-              container.setAttribute('data-page', page + 2);
-              container.innerHTML = markup;
-              document.getElementById('pagination').appendChild(container);
-            }
-          }
-        };
+          console.log('=====\nPagination Handler');
+          console.log('active page = "', $this.getAttribute('data-page'), '"');
+          console.log('filter used = "', _slug, '"');
+          console.log('total pages = "', _this.TOTAL_PAGES, '"');
+          console.log('total items = "', _this.TOTAL_ITEMS, '"\n======');
+        }
       }
     }, false);
+  },
+
+  searchHandler: (event) => {
+    console.log('=====\nSearch Keyword');
+
+    event.preventDefault();
+    let HELPERS = app.helpers;
+    let _this = app.search;
+
+    let form = document.getElementById('search__form');
+    let formData = HELPERS.serializeArray(form);
+    _this.KEYWORD = formData[0].value;
+
+    // Reset Cards & Pagination
+    document.getElementById('search-results--cards').innerHTML = '';
+    document.getElementById('pagination').innerHTML = '';
+    // END Reset Cards & Pagination
+
+    // Setup cards
+    if (!!_this.DATA && _this.DATA.posts.length) {
+      // Setup cards
+      const cardsTemplate = (content, idx) => {
+        return `
+          <a href="${content.url}" class="" target="_self" title="${content.title}">
+            <span class="card__label text-orange">${content.category}</span>
+            <span class="card__label text-capitalize">${content.date}</span>
+            <h4 class="card__title">${content.title}</h4>
+            <p class="card__url">${content.url.replace(/^.*:\/\//i, '')}</p>
+          </a>`
+      };
+
+      let _category = document.querySelector('.search__item--active').children[0].getAttribute('data-filter') === '*' ? false : document.querySelector('.search__item--active').children[0].getAttribute('data-filter');
+      console.log('category = ', _category);
+
+      _this.CURRENT_PAGE = 1;
+      _this.TOTAL_PAGES = 0;
+      _this.TOTAL_ITEMS = 0;
+      _this.PAGES_TO_SKIPE = 0;
+
+      _this.CURRENT_DATA = _this.DATA.posts
+        .filter((item) => {
+          if (!!_category) { // Has Category difernent than All '*'
+            if (!!_this.KEYWORD) { // Has Keyword
+              if (item.category === _category && item.title.toLowerCase().indexOf(_this.KEYWORD.toLowerCase()) != -1) {
+                _this.TOTAL_ITEMS++;
+                _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+                return item;
+              }
+            } else { // No Keyword with Category
+              if (item.category === _category) {
+                _this.TOTAL_ITEMS++;
+                _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+                return item;
+              }
+            }
+          } else { // All Category
+            if (!!_this.KEYWORD) { // Has Keyword
+              if (item.title.toLowerCase().indexOf(_this.KEYWORD.toLowerCase()) != -1) {
+                _this.TOTAL_ITEMS++;
+                _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+                return item;
+              }
+            } else { // No Keyword & no Category
+              _this.TOTAL_ITEMS++;
+              _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+              return item;
+            }
+          }
+        });
+
+      // Append DATA to RESTULS
+      _this.CURRENT_DATA
+        .slice(_this.PAGES_TO_SKIPE, -((_this.TOTAL_ITEMS - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE))
+        .map((content, idx) => {
+          let markupHtml = cardsTemplate(content, idx);
+          let container = document.createElement('div');
+
+          container.className = 'col-12 card';
+          container.innerHTML = markupHtml;
+
+          document.getElementById('search-results--cards').append(container);
+        });
+
+      console.log('current data = ', _this.CURRENT_DATA);
+    };
+
+    // Setup Pagination
+    if (_this.TOTAL_PAGES > 1) {
+      // Previous Pages
+      if (_this.CURRENT_PAGE - 2 > 0) {
+        markup = `${_this.CURRENT_PAGE - 2}`;
+        container = document.createElement('li');
+
+        container.className = 'pagination__item';
+        container.setAttribute('data-page', _this.CURRENT_PAGE - 2);
+        container.innerHTML = markup;
+        document.getElementById('pagination').appendChild(container);
+      }
+
+      if (_this.CURRENT_PAGE - 1 > 0) {
+        markup = `${_this.CURRENT_PAGE - 1}`;
+        container = document.createElement('li');
+
+        container.className = 'pagination__item';
+        container.setAttribute('data-page', _this.CURRENT_PAGE - 1);
+        container.innerHTML = markup;
+        document.getElementById('pagination').appendChild(container);
+      }
+
+      // Current Page
+      markup = `${_this.CURRENT_PAGE}`;
+      container = document.createElement('li');
+
+      container.className = 'pagination__item pagination__item--active';
+      container.setAttribute('data-page', _this.CURRENT_PAGE);
+      container.innerHTML = markup;
+      document.getElementById('pagination').appendChild(container);
+
+      // Next Pages
+      if (_this.CURRENT_PAGE + 1 <= _this.TOTAL_PAGES) {
+        markup = `${_this.CURRENT_PAGE + 1}`;
+        container = document.createElement('li');
+
+        container.className = 'pagination__item';
+        container.setAttribute('data-page', _this.CURRENT_PAGE + 1);
+        container.innerHTML = markup;
+        document.getElementById('pagination').appendChild(container);
+      }
+
+      if (_this.CURRENT_PAGE + 2 < _this.TOTAL_PAGES) {
+        markup = `${_this.CURRENT_PAGE + 2}`;
+        container = document.createElement('li');
+
+        container.className = 'pagination__item';
+        container.setAttribute('data-page', _this.CURRENT_PAGE + 2);
+        container.innerHTML = markup;
+        document.getElementById('pagination').appendChild(container);
+      }
+    }
+    // END Setup pagination
+
+    console.log('pages to skipe = "', _this.PAGES_TO_SKIPE, '"');
+    console.log('total pages = "', _this.TOTAL_PAGES, '"');
+    console.log('total items = "', _this.TOTAL_ITEMS, '"');
+    console.log('active page = "', !!document.querySelector('.pagination__item--active') ? document.querySelector('.pagination__item--active').getAttribute('data-page') : 'N/A', '"\n======');
+
+    document.getElementById('keyword').textContent = _this.KEYWORD;
+    document.getElementById('total-results').textContent = _this.TOTAL_ITEMS;
   }
 };

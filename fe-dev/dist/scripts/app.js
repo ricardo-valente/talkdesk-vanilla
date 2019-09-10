@@ -244,8 +244,8 @@ app.search = {
   // Configs + Constants
   TIMERS: '',
   DATA: '',
-  API_SEARCH: 'https://talkdesk-com.meza.talkdeskqa.com/wp-json/external/globalsearch/',
-  // API_SEARCH: 'https://talkdesk.com/wp-json/external/globalsearch?search=Five9',
+  // API_SEARCH: 'https://talkdesk-com.meza.talkdeskqa.com/wp-json/external/globalsearch/',
+  API_SEARCH: 'https://talkdesk.com/wp-json/external/globalsearch',
   // Pagination
   PAGE_SIZE: 10,
   PAGES_TO_SKIPE: 0,
@@ -254,6 +254,7 @@ app.search = {
   CURRENT_PAGE: 1,
   // END Pagination
   CURRENT_DATA: '',
+  KEYWORD: '',
 
 
   // MAIN FUNCTIONS ------------------------------------
@@ -270,10 +271,19 @@ app.search = {
 
   setupEvents: () => {
     console.log('=====\napp Search === Events\n');
+    let _HELPERS = app.helpers;
     let _this = app.search;
 
     _this.filtersHandler();
     _this.paginationHandler();
+
+    document.querySelector('form').addEventListener('change', (event) => {
+      let $this = event.currentTarget;
+      let formData = _HELPERS.serializeArray($this);
+
+      _this.KEYWORD = formData[0].value;
+      // console.log('=======\nSetup events\nnew keyword', _this.KEYWORD, '\n======');
+    });
   },
 
   setupLayout: () => {
@@ -293,21 +303,19 @@ app.search = {
 
     // Setup cards
     if (!!_this.DATA && _this.DATA.posts.length) {
-      _this.PAGES_TO_SKIPE = _this.PAGE_SIZE * _this.CURRENT_PAGE;
-
-      // console.log(_this.DATA.posts.slice(_this.PAGES_TO_SKIPE, -((_this.DATA.posts.length - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE)));
-
       _this.CURRENT_DATA = _this.DATA.posts;
 
       _this.CURRENT_DATA
         .sort((a, b) => {
+          // console.log('sort');
           // Turn your strings into dates, and then subtract them
           // to get a value that is either negative, positive, or zero.
-          console.log(new Date(b.date) - new Date(a.date));
+
           return new Date(b.date) - new Date(a.date);
         })
         .slice(_this.PAGES_TO_SKIPE, -((_this.CURRENT_DATA.length - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE))
         .map((content, idx) => {
+          // console.log('map');
           let markupHtml = cardsTemplate(content, idx);
           let container = document.createElement('div');
 
@@ -316,6 +324,8 @@ app.search = {
 
           document.getElementById('search-results--cards').append(container);
         });
+
+      // console.log(_this.CURRENT_DATA);
     };
 
     // Setup Pagination
@@ -417,6 +427,9 @@ app.search = {
         event.preventDefault();
 
         if ($parent.matches('.search__item') && !$parent.matches('.search__item--active')) {
+          console.log('=====\nFilter Handler');
+          console.log('active filter = "', $this.getAttribute('data-filter'), '"');
+
           // Reset Cards & Pagination
           document.getElementById('search-results--cards').innerHTML = '';
           document.getElementById('pagination').innerHTML = '';
@@ -430,8 +443,6 @@ app.search = {
 
           // Setup cards
           if (!!_this.DATA && _this.DATA.posts.length) {
-            _this.CURRENT_PAGE = 1;
-
             // Setup cards
             const cardsTemplate = (content, idx) => {
               return `
@@ -443,47 +454,57 @@ app.search = {
                 </a>`
             };
 
-            let _slug = $this.getAttribute('data-filter');
+            let _category = $this.getAttribute('data-filter') === '*' ? false : $this.getAttribute('data-filter');
 
-            let dataObject = _this.DATA.posts;
+            _this.CURRENT_PAGE = 1;
+            _this.TOTAL_PAGES = 0;
+            _this.TOTAL_ITEMS = 0;
+            _this.PAGES_TO_SKIPE = 0;
 
-            if (_slug === '*') {
-              _this.TOTAL_PAGES = 0;
-              _this.TOTAL_ITEMS = 0;
-              dataObject
-                .slice(_this.PAGES_TO_SKIPE, -((_this.DATA.posts.length - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE))
-                .map((content, idx) => {
-                  let markupHtml = cardsTemplate(content, idx);
-                  let container = document.createElement('div');
-
-                  container.className = 'col-12 card';
-                  container.innerHTML = markupHtml;
-
-                  document.getElementById('search-results--cards').append(container);
-                });
-            } else {
-              _this.TOTAL_PAGES = 0;
-              _this.TOTAL_ITEMS = 0;
-
-              dataObject
-                .filter((x) => {
-                  if (x.category === _slug) {
+            _this.CURRENT_DATA = _this.DATA.posts
+              .filter((item) => {
+                if (!!_category) { // Has Category difernent than All '*'
+                  if (!!_this.KEYWORD) { // Has Keyword
+                    if (item.category === _category && item.title.toLowerCase().indexOf(_this.KEYWORD.toLowerCase()) != -1) {
+                      _this.TOTAL_ITEMS++;
+                      _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+                      return item;
+                    }
+                  } else { // No Keyword with Category
+                    if (item.category === _category) {
+                      _this.TOTAL_ITEMS++;
+                      _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+                      return item;
+                    }
+                  }
+                } else { // All Category
+                  if (!!_this.KEYWORD) { // Has Keyword
+                    if (item.title.toLowerCase().indexOf(_this.KEYWORD.toLowerCase()) != -1) {
+                      _this.TOTAL_ITEMS++;
+                      _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+                      return item;
+                    }
+                  } else { // No Keyword & no Category
                     _this.TOTAL_ITEMS++;
                     _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+                    return item;
                   }
-                  return x.category === _slug
-                })
-                .slice(_this.PAGES_TO_SKIPE, -((_this.TOTAL_ITEMS - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE))
-                .map((content, idx) => {
-                  let markupHtml = cardsTemplate(content, idx);
-                  let container = document.createElement('div');
+                }
+              });
 
-                  container.className = 'col-12 card';
-                  container.innerHTML = markupHtml;
+            // Append DATA to RESTULS
+            _this.CURRENT_DATA
+              .slice(_this.PAGES_TO_SKIPE, -((_this.TOTAL_ITEMS - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE))
+              .map((content, idx) => {
+                let markupHtml = cardsTemplate(content, idx);
+                let container = document.createElement('div');
 
-                  document.getElementById('search-results--cards').append(container);
-                });
-            }
+                container.className = 'col-12 card';
+                container.innerHTML = markupHtml;
+
+                document.getElementById('search-results--cards').append(container);
+              });
+            console.log('current data = ', _this.CURRENT_DATA);
           };
 
           // Setup Pagination
@@ -548,12 +569,10 @@ app.search = {
             }
           };
 
-          document.getElementById('total-results').textContent = _this.TOTAL_ITEMS || _this.DATA.posts.length;
+          document.getElementById('total-results').textContent = _this.TOTAL_ITEMS || _this.CURRENT_DATA.length;
 
-          console.log('=====\Filter Handler');
-          console.log('active filter = "', $this.getAttribute('data-filter'), '"');
           console.log('total pages = "', _this.TOTAL_PAGES, '"');
-          console.log('total items = "', _this.TOTAL_ITEMS || _this.DATA.posts.length, '"\n======');
+          console.log('total items = "', _this.TOTAL_ITEMS || _this.CURRENT_DATA.length, '"\n======');
         }
       }
 
@@ -716,31 +735,18 @@ app.search = {
     let HELPERS = app.helpers;
     let _this = app.search;
 
-    var form = document.getElementById('search__form');
-    var formData = HELPERS.serializeArray(form);
-    console.log('keyword = "', formData[0].value, '"');
-
-    _this.CURRENT_DATA = _this.DATA.posts.filter((item, idx) => {
-      if (item.title.toLowerCase().indexOf(formData[0].value.toLowerCase()) != -1) {
-        return item;
-      }
-    });
-    console.log('data filtered', _this.CURRENT_DATA);
+    let form = document.getElementById('search__form');
+    let formData = HELPERS.serializeArray(form);
+    _this.KEYWORD = formData[0].value;
 
     // Reset Cards & Pagination
     document.getElementById('search-results--cards').innerHTML = '';
     document.getElementById('pagination').innerHTML = '';
     // END Reset Cards & Pagination
 
-    _this.PAGES_TO_SKIPE = 0;
-    _this.TOTAL_PAGES = ((_this.CURRENT_DATA.length) / _this.PAGE_SIZE).toFixed();
-    _this.TOTAL_ITEMS = _this.CURRENT_DATA.length;
-    console.log('pages to skipe = "', _this.PAGES_TO_SKIPE, '"');
-    console.log('total pages = "', _this.TOTAL_PAGES, '"');
-    console.log('total items = "', _this.TOTAL_ITEMS, '"');
-
     // Setup cards
-    if (!!_this.CURRENT_DATA.length) {
+    if (!!_this.DATA && _this.DATA.posts.length) {
+      // Setup cards
       const cardsTemplate = (content, idx) => {
         return `
           <a href="${content.url}" class="" target="_self" title="${content.title}">
@@ -750,23 +756,61 @@ app.search = {
             <p class="card__url">${content.url.replace(/^.*:\/\//i, '')}</p>
           </a>`
       };
-      _this.CURRENT_DATA
-        .slice(_this.PAGES_TO_SKIPE, -((_this.CURRENT_DATA.length - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE))
-        // .slice(_this.PAGES_TO_SKIP)
-        .map((content, idx) => {
-          if (idx < _this.PAGE_SIZE) {
-            console.log('INDEX === ', idx);
-            let markupHtml = cardsTemplate(content, idx);
-            let container = document.createElement('div');
 
-            container.className = 'col-12 card';
-            container.innerHTML = markupHtml;
+      let _category = document.querySelector('.search__item--active').children[0].getAttribute('data-filter') === '*' ? false : document.querySelector('.search__item--active').children[0].getAttribute('data-filter');
+      console.log('category = ', _category);
 
-            document.getElementById('search-results--cards').append(container);
+      _this.CURRENT_PAGE = 1;
+      _this.TOTAL_PAGES = 0;
+      _this.TOTAL_ITEMS = 0;
+      _this.PAGES_TO_SKIPE = 0;
+
+      _this.CURRENT_DATA = _this.DATA.posts
+        .filter((item) => {
+          if (!!_category) { // Has Category difernent than All '*'
+            if (!!_this.KEYWORD) { // Has Keyword
+              if (item.category === _category && item.title.toLowerCase().indexOf(_this.KEYWORD.toLowerCase()) != -1) {
+                _this.TOTAL_ITEMS++;
+                _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+                return item;
+              }
+            } else { // No Keyword with Category
+              if (item.category === _category) {
+                _this.TOTAL_ITEMS++;
+                _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+                return item;
+              }
+            }
+          } else { // All Category
+            if (!!_this.KEYWORD) { // Has Keyword
+              if (item.title.toLowerCase().indexOf(_this.KEYWORD.toLowerCase()) != -1) {
+                _this.TOTAL_ITEMS++;
+                _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+                return item;
+              }
+            } else { // No Keyword & no Category
+              _this.TOTAL_ITEMS++;
+              _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
+              return item;
+            }
           }
         });
-    }
-    //END Setup cards
+
+      // Append DATA to RESTULS
+      _this.CURRENT_DATA
+        .slice(_this.PAGES_TO_SKIPE, -((_this.TOTAL_ITEMS - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE))
+        .map((content, idx) => {
+          let markupHtml = cardsTemplate(content, idx);
+          let container = document.createElement('div');
+
+          container.className = 'col-12 card';
+          container.innerHTML = markupHtml;
+
+          document.getElementById('search-results--cards').append(container);
+        });
+
+      console.log('current data = ', _this.CURRENT_DATA);
+    };
 
     // Setup Pagination
     if (_this.TOTAL_PAGES > 1) {
@@ -823,9 +867,12 @@ app.search = {
     }
     // END Setup pagination
 
+    console.log('pages to skipe = "', _this.PAGES_TO_SKIPE, '"');
+    console.log('total pages = "', _this.TOTAL_PAGES, '"');
+    console.log('total items = "', _this.TOTAL_ITEMS, '"');
     console.log('active page = "', !!document.querySelector('.pagination__item--active') ? document.querySelector('.pagination__item--active').getAttribute('data-page') : 'N/A', '"\n======');
 
-    document.getElementById('keyword').textContent = formData[0].value;
+    document.getElementById('keyword').textContent = _this.KEYWORD;
     document.getElementById('total-results').textContent = _this.TOTAL_ITEMS;
   }
 };

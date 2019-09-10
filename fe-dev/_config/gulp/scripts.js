@@ -48,7 +48,7 @@ gulp.task('scripts:lint', function (cb) {
 gulp.task('scripts:app', function () {
 	var concat = require('gulp-concat'),
 		rename = require('gulp-rename'),
-		uglify = require('gulp-uglify'),
+		uglify = require('gulp-terser'),
 		sourcemaps = require('gulp-sourcemaps'),
 		header = require('gulp-header');
 
@@ -64,7 +64,7 @@ gulp.task('scripts:app', function () {
 		.pipe(sourcemaps.init())
 		.pipe(concat('app.js'))
 		.pipe(gulp.dest(cfg.dist.appJavascript))
-		// .pipe(uglify())
+		.pipe(uglify())
 		.pipe(header(banner, {pkg: pkg}))
 		.pipe(rename('app.min.js'))
 		.pipe(sourcemaps.write('./maps'))
@@ -73,7 +73,7 @@ gulp.task('scripts:app', function () {
 gulp.task('scripts:custom', function () {
 	var concat = require('gulp-concat'),
 		rename = require('gulp-rename'),
-		uglify = require('gulp-uglify'),
+		uglify = require('gulp-terser'),
 		sourcemaps = require('gulp-sourcemaps');
 
 	/*
@@ -98,7 +98,7 @@ gulp.task('scripts:custom', function () {
 gulp.task('scripts:head-vendor', function () {
 	var concat = require('gulp-concat'),
 		rename = require('gulp-rename'),
-		uglify = require('gulp-uglify'),
+		uglify = require('gulp-terser'),
 		sourcemaps = require('gulp-sourcemaps');
 
 	var plugins = [
@@ -146,7 +146,7 @@ gulp.task('scripts:deploy', function (cb) {
 gulp.task('scripts:deploy:app', function () {
 	var concat = require('gulp-concat'),
 		rename = require('gulp-rename'),
-		uglify = require('gulp-uglify'),
+		uglify = require('gulp-terser'),
 		header = require('gulp-header'),
 
 		removeCode = require('gulp-remove-code'),
@@ -185,7 +185,7 @@ gulp.task('scripts:deploy:app', function () {
 gulp.task('scripts:deploy:custom', function () {
 	var concat = require('gulp-concat'),
 		rename = require('gulp-rename'),
-		uglify = require('gulp-uglify'),
+		uglify = require('gulp-terser'),
 		header = require('gulp-header');
 
 	/*
@@ -209,7 +209,7 @@ gulp.task('scripts:deploy:head-vendor', function () {
 	var concat = require('gulp-concat'),
 		header = require('gulp-header'),
 
-		uglify = require('gulp-uglify'),
+		uglify = require('gulp-terser'),
 		stripDebug = require('gulp-strip-debug');
 
 	var plugins = [
