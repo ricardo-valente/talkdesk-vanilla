@@ -16,7 +16,7 @@
         <section class="search__page">
             <div class="grid container">
                 <div class="col-12">
-                    <form id="search__form" class="grid-top" onsubmit="app.search.searchKeyword(event); return false;">
+                    <form id="search__form" class="grid-top" onsubmit="app.search.searchHandler(event); return false;">
                         <div class="col-8">
                             <input value="" type="text" name="search-keyword" placeholder="Search...">
                         </div>
@@ -35,7 +35,7 @@
                     </ul>
                 </div>
                 <div class="col-10_sm-12_md-9">
-                    <span>Showing <span id="total-results"></span> results for "<span id="keyword"></span>"</span>
+                    <p class="search-results__title">Showing <span id="total-results"></span> results for "<span id="keyword"></span>"</p>
                     <div id="search-results--cards" class="grid">
                     </div>
                     <ul id="pagination" class="pagination pagination__wrapper"></ul>
