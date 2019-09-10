@@ -108,59 +108,44 @@ app.helpers = {
     return null;
   },
 
-  paginate: (totalItems, currentPage = 1, pageSize = 10, maxPages = 10) => {
-    // calculate total pages
-    let totalPages = Math.ceil(totalItems / pageSize);
+  /**
+   * Serialize all form data into a query string
+   * (c) 2018 Chris Ferdinandi, MIT License, https://gomakethings.com
+   * @param  {Node}   form The form to serialize
+   * @return {String}      The serialized form data
+   */
+  serializeArray: (form) => {
+    // Setup our serialized data
+    var serialized = [];
 
-    // ensure current page isn't out of range
-    if (currentPage < 1) {
-      currentPage = 1;
-    } else if (currentPage > totalPages) {
-      currentPage = totalPages;
-    }
+    // Loop through each field in the form
+    for (var i = 0; i < form.elements.length; i++) {
 
-    let startPage, endPage;
-    if (totalPages <= maxPages) {
-      // total pages less than max so show all pages
-      startPage = 1;
-      endPage = totalPages;
-    } else {
-      // total pages more than max so calculate start and end pages
-      let maxPagesBeforeCurrentPage = Math.floor(maxPages / 2);
-      let maxPagesAfterCurrentPage = Math.ceil(maxPages / 2) - 1;
-      if (currentPage <= maxPagesBeforeCurrentPage) {
-        // current page near the start
-        startPage = 1;
-        endPage = maxPages;
-      } else if (currentPage + maxPagesAfterCurrentPage >= totalPages) {
-        // current page near the end
-        startPage = totalPages - maxPages + 1;
-        endPage = totalPages;
-      } else {
-        // current page somewhere in the middle
-        startPage = currentPage - maxPagesBeforeCurrentPage;
-        endPage = currentPage + maxPagesAfterCurrentPage;
+      var field = form.elements[i];
+
+      // Don't serialize fields without a name, submits, buttons, file and reset inputs, and disabled fields
+      if (!field.name || field.disabled || field.type === 'file' || field.type === 'reset' || field.type === 'submit' || field.type === 'button') continue;
+
+      // If a multi-select, get all selections
+      if (field.type === 'select-multiple') {
+        for (var n = 0; n < field.options.length; n++) {
+          if (!field.options[n].selected) continue;
+          serialized.push({
+            name: field.name,
+            value: field.options[n].value
+          });
+        }
+      }
+
+      // Convert field data to a query string
+      else if ((field.type !== 'checkbox' && field.type !== 'radio') || field.checked) {
+        serialized.push({
+          name: field.name,
+          value: field.value
+        });
       }
     }
 
-    // calculate start and end item indexes
-    let startIndex = (currentPage - 1) * pageSize;
-    let endIndex = Math.min(startIndex + pageSize - 1, totalItems - 1);
-
-    // create an array of pages to ng-repeat in the pager control
-    let pages = Array.from(Array((endPage + 1) - startPage).keys()).map(i => startPage + i);
-
-    // return object with all pager properties required by the view
-    return {
-      totalItems: totalItems,
-      currentPage: currentPage,
-      pageSize: pageSize,
-      totalPages: totalPages,
-      startPage: startPage,
-      endPage: endPage,
-      startIndex: startIndex,
-      endIndex: endIndex,
-      pages: pages
-    };
+    return serialized;
   }
 };
