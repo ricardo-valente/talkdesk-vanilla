@@ -1,6 +1,6 @@
 .search {
   &__item {
-    @include fontSize(1rem, 1.25rem);
+    font-size: 1.25rem;
     line-height: 1.875;
     margin-bottom: 0;
     padding-left: 1.125rem;
@@ -18,15 +18,34 @@
       }
     }
 
+    @include bp('md') {
+      display: inline-flex;
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      padding: 0.25rem 0.5rem;
+      border: 2px solid transparent;
+    }
+
     span {
       @include font('body', 'semi-bold');
       color: $color0;
       text-decoration: none;
       position: relative;
       cursor: pointer;
+
+      @include bp('md') {
+        &::before {
+          display: none;
+        }
+      }
     }
 
     &--active {
+      @include bp('md') {
+        position: relative;
+        border-color: $color0;
+        border-radius: 4px;
+      }
       span {
         &::before {
           content: '';

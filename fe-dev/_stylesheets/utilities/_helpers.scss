@@ -29,3 +29,12 @@
   }
   // END text style
 }
+
+.invisible {
+  visibility: hidden !important;
+}
+
+.hidden,
+[hidden] {
+  display: none !important;
+}
