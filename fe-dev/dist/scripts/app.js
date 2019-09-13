@@ -244,8 +244,8 @@ app.search = {
   // Configs + Constants
   TIMERS: '',
   DATA: '',
-  // API_SEARCH: 'https://talkdesk-com.meza.talkdeskqa.com/wp-json/external/globalsearch/',
-  API_SEARCH: 'https://talkdesk.com/wp-json/external/globalsearch',
+  API_SEARCH: 'https://talkdesk-com.meza.talkdeskqa.com/wp-json/external/globalsearch/',
+  // API_SEARCH: 'https://talkdesk.com/wp-json/external/globalsearch',
   // Pagination
   PAGE_SIZE: 10,
   PAGES_TO_SKIPE: 0,
