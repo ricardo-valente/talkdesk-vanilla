@@ -1,12 +1,9 @@
-# BY Starter V2
+# Starter V2
 2017/09 - Front-end boilerplate for faster and easier web development. Without some noisy plugins. \
 JavaScript + CSS3 + HTML 5.
 
 ## Installation
 ```
-git clone http://gitlab.bycom.pt/gitlab/bystarter-v2.git
-rm -rf !$/.git
-
 npm install && bower install
 
 gulp
@@ -99,11 +96,7 @@ gulp scripts:deploy
 
 ## Extra Info
 ###### Components
-* Normalize 2.1.0
-* BY Grid 1.1.0 (based on v3.1.1 of Twitter's Bootstrap)
-* Modernizr 2.6.2
-* jQuery 3.1.1
-* js-cookie 2.1.4
+* Gridlex - Flexbox Grid System (v2.7.1)
 
 ###### Workflow + Tools
 * Bower 1.7.2
