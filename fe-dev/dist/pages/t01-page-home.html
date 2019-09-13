@@ -25,7 +25,7 @@
                         </div>
                     </form>
                 </div>
-                <div class="col-2_sm-12_md-3">
+                <div class="col-2_md-12">
                     <ul id="search-filters" class="search__filters">
                         <li class="search__item search__item--active"><span data-filter="*">All</span></li>
                         <li class="search__item"><span data-filter="Products">Product</span></li>
@@ -34,11 +34,17 @@
                         <li class="search__item"><span data-filter="Resources">Resources</span></li>
                     </ul>
                 </div>
-                <div class="col-10_sm-12_md-9">
+                <div class="col-10_md-12">
                     <p class="search-results__title">Showing <span id="total-results"></span> results for "<span id="keyword"></span>"</p>
                     <div id="search-results--cards" class="grid">
                     </div>
-                    <ul id="pagination" class="pagination pagination__wrapper"></ul>
+                    <div class="pagination">
+                        <button class="button button--prev invisible" data-page="prev">prev</button>
+                        <ul id="pagination" class="pagination__wrapper">
+                            <!-- <li class="pagination__item pagination__item--active" data-page="1">1</li> -->
+                        </ul>
+                        <button class="button button--next invisible" data-page="next">next</button>
+                    </div>
                 </div>
             </div>
         </section>
