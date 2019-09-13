@@ -162,13 +162,19 @@ app.search = {
 
             // Setup cards
             const cardsTemplate = (content, idx) => {
+              let title = !!content.title ? content.title : '';
+              let url = !!content.url ? content.url : '#';
+              let category = !!content.category ? content.category : '';
+              let date = !!content.date && content.date !== null ? content.date : '';
+              let urlText = !!content.url ? content.url.replace(/^.*:\/\//i, '') : '';
+
               return `
-              <a href="${content.url}" class="" target="_self" title="${content.title}">
-                <span class="card__label text-orange">${content.category}</span>
-                <span class="card__label text-capitalize">${content.date}</span>
-                <h4 class="card__title">${content.title}</h4>
-                <p class="card__url">${content.url.replace(/^.*:\/\//i, '')}</p>
-              </a>`
+                <a href="${url}" class="" target="_self" title="${title}">
+                  <span class="card__label text-orange">${category}</span>
+                  <span class="card__label text-capitalize">${date}</span>
+                  <h4 class="card__title">${title}</h4>
+                  <p class="card__url">${urlText}</p>
+                </a>`
             };
 
             let dataObject = _this.CURRENT_DATA;
