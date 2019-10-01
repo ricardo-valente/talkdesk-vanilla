@@ -15,6 +15,31 @@ app.search = {
   CURRENT_DATA: '',
   KEYWORD: '',
 
+  utils: {
+    cardMarkup: content => {
+      let title = content.title || ''
+      let url = content.url || '#'
+      let category = content.category || ''
+      let date = content.date || ''
+      let urlText = !!content.url ? content.url.replace(/^.*:\/\//i, '') : ''
+
+      return `<a href="${url}" class="" target="_self" title="${title}">
+        <span class="card__label text-orange">${category}</span>
+        <span class="card__label text-capitalize">${date}</span>
+        <h4 class="card__title">${title}</h4>
+        <p class="card__url">${urlText}</p>
+      </a>`
+    },
+
+    keyWordExists: (item, _this = app.search) =>
+      _this.KEYWORD.toLowerCase().split(' ').every(search =>
+        item.title.toLowerCase().includes(search)),
+
+    pageIndexesHandler: (dataObject, _this = app.search) => {
+      const currentPageIndexes = -((dataObject.length - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE)
+      return currentPageIndexes >= 0 ? dataObject.length : currentPageIndexes
+    }
+  },
 
   // MAIN FUNCTIONS ------------------------------------
   init: () => {
@@ -158,33 +183,21 @@ app.search = {
             document.getElementById('pagination').innerHTML = '';
             // END Reset Cards
 
-            _this.PAGES_TO_SKIPE = _this.PAGE_SIZE * _this.CURRENT_PAGE;
-
-            // Setup cards
-            const cardsTemplate = (content, idx) => {
-              let title = !!content.title ? content.title : '';
-              let url = !!content.url ? content.url : '#';
-              let category = !!content.category ? content.category : '';
-              let date = !!content.date && content.date !== null ? content.date : '';
-              let urlText = !!content.url ? content.url.replace(/^.*:\/\//i, '') : '';
-
-              return `
-                <a href="${url}" class="" target="_self" title="${title}">
-                  <span class="card__label text-orange">${category}</span>
-                  <span class="card__label text-capitalize">${date}</span>
-                  <h4 class="card__title">${title}</h4>
-                  <p class="card__url">${urlText}</p>
-                </a>`
-            };
+            _this.PAGES_TO_SKIPE = _this.PAGE_SIZE * _this.CURRENT_PAGE - _this.PAGE_SIZE;
 
             let dataObject = _this.CURRENT_DATA;
             if (_slug === '*') {
-              _this.TOTAL_PAGES = ((_this.DATA.posts.length - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed();
-              _this.TOTAL_ITEMS = _this.DATA.posts.length;
+              _this.TOTAL_PAGES = (dataObject.length / _this.PAGE_SIZE).toFixed();
+              _this.TOTAL_ITEMS = dataObject.length;
+              console.log('_this.TOTAL_PAGES: ', (dataObject.length / _this.PAGE_SIZE))
+              console.log('_this.TOTAL_PAGES toFixed(): ', (dataObject.length / _this.PAGE_SIZE).toFixed())
+              console.log('_this.PAGES_TO_SKIPE: ', _this.PAGES_TO_SKIPE)
+              console.log('_this.PAGES_TO_HOLD: ', _this.utils.pageIndexesHandler(dataObject))
+              console.log('_this.PAGES_TO_DISPLAY: ', dataObject.slice(_this.PAGES_TO_SKIPE, -((dataObject.length - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE)))
               dataObject
-                .slice(_this.PAGES_TO_SKIPE, -((_this.DATA.posts.length - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE))
+                .slice(_this.PAGES_TO_SKIPE, _this.utils.pageIndexesHandler(dataObject))
                 .map((content, idx) => {
-                  let markupHtml = cardsTemplate(content, idx);
+                  let markupHtml = _this.utils.cardMarkup(content);
                   let container = document.createElement('div');
 
                   container.className = 'col-12 card';
@@ -500,16 +513,6 @@ app.search = {
 
     // Setup cards
     if (!!_this.DATA && _this.DATA.posts.length) {
-      // Setup cards
-      const cardsTemplate = (content, idx) => {
-        return `
-          <a href="${content.url}" class="" target="_self" title="${content.title}">
-            <span class="card__label text-orange">${content.category}</span>
-            <span class="card__label text-capitalize">${content.date}</span>
-            <h4 class="card__title">${content.title}</h4>
-            <p class="card__url">${content.url.replace(/^.*:\/\//i, '')}</p>
-          </a>`
-      };
 
       let _category = document.querySelector('.search__item--active').children[0].getAttribute('data-filter') === '*' ? false : document.querySelector('.search__item--active').children[0].getAttribute('data-filter');
       console.log('category = ', _category);
@@ -523,7 +526,7 @@ app.search = {
         .filter((item) => {
           if (!!_category) { // Has Category difernent than All '*'
             if (!!_this.KEYWORD) { // Has Keyword
-              if (item.category === _category && item.title.toLowerCase().indexOf(_this.KEYWORD.toLowerCase()) != -1) {
+              if (item.category === _category && _this.utils.keyWordExists(item)) {
                 _this.TOTAL_ITEMS++;
                 _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
                 return item;
@@ -537,7 +540,8 @@ app.search = {
             }
           } else { // All Category
             if (!!_this.KEYWORD) { // Has Keyword
-              if (item.title.toLowerCase().indexOf(_this.KEYWORD.toLowerCase()) != -1) {
+              console.log(_this.utils.keyWordExists(item))
+              if (_this.utils.keyWordExists(item)) {
                 _this.TOTAL_ITEMS++;
                 _this.TOTAL_PAGES = (_this.TOTAL_ITEMS - _this.PAGE_SIZE) > 0 ? ((_this.TOTAL_ITEMS - _this.PAGE_SIZE) / _this.PAGE_SIZE).toFixed() : 0;
                 return item;
@@ -554,7 +558,7 @@ app.search = {
       _this.CURRENT_DATA
         .slice(_this.PAGES_TO_SKIPE, -((_this.TOTAL_ITEMS - _this.PAGE_SIZE) - _this.PAGES_TO_SKIPE))
         .map((content, idx) => {
-          let markupHtml = cardsTemplate(content, idx);
+          let markupHtml = _this.utils.cardMarkup(content);
           let container = document.createElement('div');
 
           container.className = 'col-12 card';
